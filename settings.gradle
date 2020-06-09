@@ -1,0 +1,2 @@
+include ':ndk01md5'
+rootProject.name = "NDKPractice"
