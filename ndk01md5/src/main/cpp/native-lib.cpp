@@ -27,6 +27,7 @@ Java_com_east_ndkpractice_SignatureUtils_signatureParams(JNIEnv *env, jclass cla
     // 1.字符串签名加上前缀
     string signature_str(params);
     signature_str.insert(0,EXTRA_SIGNATURE);
+
     // 2.后面去掉2位
     signature_str = signature_str.substr(0,signature_str.length()-2);
 
@@ -38,9 +39,11 @@ Java_com_east_ndkpractice_SignatureUtils_signatureParams(JNIEnv *env, jclass cla
     MD5Final(digest,ctx);
 
     // 生成 32 位的字符串
-    char md5_str[32];
+    //md5_str[32]md5_str[33]留一位给/0结束符；
+    //否则报数组越界。坑。。。。。。。。。。。。。。。。
+    char md5_str[33] = {0};
     for(int i = 0; i < 16; i++){
-        // 不足的情况下补0, f = 0f ab = ab
+        // 最终生成 32 位 ，不足的前面补0
         sprintf(md5_str,"%s%02x",md5_str,digest[i]);
     }
 
