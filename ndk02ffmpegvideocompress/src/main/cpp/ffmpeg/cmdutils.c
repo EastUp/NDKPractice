@@ -37,7 +37,7 @@
 #include "libavresample/avresample.h"
 #include "libswscale/swscale.h"
 #include "libswresample/swresample.h"
-#include "postprocess.h"
+#include "libpostproc/postprocess.h"
 #include "libavutil/attributes.h"
 #include "libavutil/avassert.h"
 #include "libavutil/avstring.h"

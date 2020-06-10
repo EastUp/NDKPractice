@@ -26,7 +26,8 @@ add_library( # Sets the name of the library.
         # Provides a relative path to your source file(s).
         native-lib.cpp
         # 编译额外的 C 文件
-        ffmpeg_filter.c ffmpeg_opt.c cmdutils.c
+        ffmpeg/ffmpeg.c ffmpeg/ffmpeg_filter.c ffmpeg/ffmpeg_opt.c ffmpeg/cmdutils.c
+        ffmpeg/network.c ffmpeg/os_support.c ffmpeg/mathops.c
         )
 
 # Searches for a specified prebuilt library and stores the path as a
@@ -59,6 +60,9 @@ target_link_libraries( # Specifies the target library.
 #FFMpeg配置
 #FFmpeg配置目录
 set(JNI_LIBS_DIR ../jniLibs)
+
+include_directories(${JNI_LIBS_DIR}/includes)
+include_directories(${JNI_LIBS_DIR}/other)
 
 # 工具库(大部分库都需要这个库的支持)
 add_library(avutil
@@ -122,6 +126,3 @@ add_library(avdevice
 set_target_properties(avdevice
         PROPERTIES IMPORTED_LOCATION
         ${JNI_LIBS_DIR}/armeabi-v7a/libavdevice.so)
-
-include_directories(${JNI_LIBS_DIR}/includes)
-include_directories(${JNI_LIBS_DIR}/other)

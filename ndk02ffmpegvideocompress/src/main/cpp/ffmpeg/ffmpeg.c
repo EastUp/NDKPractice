@@ -100,6 +100,7 @@
 #endif
 
 #include <time.h>
+#include <pthread.h>
 
 #include "ffmpeg.h"
 #include "cmdutils.h"

@@ -8,7 +8,7 @@
 
 ## 编译脚本文件
 
-在module目录下有`test1.sh`,`test2.sh`,`test3.sh`,主要是用`test1.sh`。  
+在module目录下有`test1.sh`,`test2.sh`,`test3.sh`,`build_android_clang.sh`,主要是用`test1.sh`。  
 注意记得修改 `NDK_PATH`和`HOST_PLATFORM_WIN`
 
 ```
