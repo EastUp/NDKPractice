@@ -17,8 +17,13 @@ android {
         externalNativeBuild {
             cmake{
                 cppFlags ""
+                // 指定生成的so库的架构类型
                 abiFilters "armeabi-v7a"
             }
+        }
+        ndk{
+            //指定运行哪种架构的so库
+            abiFilters "armeabi-v7a"
         }
     }
 
@@ -34,6 +39,11 @@ android {
             path "src/main/cpp/CMakeLists.txt"
             version "3.10.2"
         }
+    }
+
+    compileOptions {
+        sourceCompatibility 1.8
+        targetCompatibility 1.8
     }
 }
 

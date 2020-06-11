@@ -12,6 +12,7 @@ TOOLCHAIN=$NDK/toolchains/llvm/prebuilt/darwin-x86_64
 # 编译环境
 SYSROOT=$TOOLCHAIN/sysroot
 
+#--enable-avresample \
 function build
 {
   ./configure \

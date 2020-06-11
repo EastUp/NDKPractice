@@ -23,10 +23,12 @@ class MainActivity : AppCompatActivity() {
             override fun onCancel(){ finish()}
         })
 
-        tv.text = stringFromJNI()
+        tv.text = ffmpegInfo()
     }
 
     external fun stringFromJNI(): String
+
+    external fun ffmpegInfo():String
 
     companion object {
         init {
