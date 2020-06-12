@@ -19,3 +19,9 @@
 
 如果是 cmake文件（看下图）：
 在app下的build.gradle中的cmake里面添加 arguments “-DANDROID_STL=c++_shared”
+
+## 资料
+《计算机视觉 - 算法与应用》  
+[openBR](http://openbiometrics.org/)  
+[CImage](https://msdn.microsoft.com/zh-cn/library/ca96yweh)  
+[EasyPR](https://gitee.com/easypr/EasyPR)
