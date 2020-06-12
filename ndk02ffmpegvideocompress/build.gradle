@@ -17,6 +17,7 @@ android {
         externalNativeBuild {
             cmake{
                 cppFlags ""
+                arguments "-DANDROID_STL=c++_shared"
                 // 指定生成的so库的架构类型
                 abiFilters "armeabi-v7a"
             }

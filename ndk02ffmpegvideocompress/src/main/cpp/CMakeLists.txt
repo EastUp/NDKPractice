@@ -5,14 +5,14 @@
 
 cmake_minimum_required(VERSION 3.4.1)
 # 支持gnu++11
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=gnu++11")
+#set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=gnu++11")
 
 #FFMpeg配置
 #FFmpeg配置目录
 # 1. 定义so库和头文件所在目录，方面后面使用
 #set(ffmpeg_lib_dir ${CMAKE_SOURCE_DIR}/../jniLibs/${ANDROID_ABI})
-#set(ffmpeg_lib_dir ${CMAKE_SOURCE_DIR}/ffmpeg/armeabi-v7a)
-set(ffmpeg_lib_dir ${CMAKE_SOURCE_DIR}/ffmpeg/${ANDROID_ABI})
+set(ffmpeg_lib_dir ${CMAKE_SOURCE_DIR}/ffmpeg/armeabi-v7a)
+#set(ffmpeg_lib_dir ${CMAKE_SOURCE_DIR}/ffmpeg/${ANDROID_ABI})
 set(ffmpeg_head_dir ${CMAKE_SOURCE_DIR}/ffmpeg)
 
 # 2. 添加头文件目录
