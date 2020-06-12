@@ -2,12 +2,140 @@
 #include <string>
 #include <android/log.h>  //系统自带的用<>
 #include <opencv2/opencv.hpp>
+#include <android/bitmap.h>
+
+#define TAG "JNI_TAG"
+#define LOGE(...) __android_log_print(ANDROID_LOG_ERROR,TAG,__VA_ARGS__)
+//使用命名空间
+using namespace cv;
+
+
+
+extern "C" {
+// bitmap 转 Mat
+void bitmap2Mat(JNIEnv *env, Mat &mat, jobject bitmap);
+// mat 转 bitmap
+void mat2Bitmap(JNIEnv *env, Mat mat, jobject bitmap);
+}
+
+
+void bitmap2Mat(JNIEnv *env, Mat &mat, jobject bitmap) {
+    // Mat 里面有个 type : CV8UC4 刚好对上我们的 Bitmap 中的 ARGB_8888 , CV8UC2 刚好对上我们的 Bitmap 中 RGB565
+    // 1. 获取 bitmap 信息
+    AndroidBitmapInfo info;
+    void *pixels;
+    AndroidBitmap_getInfo(env, bitmap, &info);
+
+    // 锁定 Bitmap 画布
+    AndroidBitmap_lockPixels(env, bitmap, &pixels);
+    // 指定 mat 的宽高的type BGRA
+    mat.create(info.height, info.width, CV_8UC4);
+
+    if (info.format == ANDROID_BITMAP_FORMAT_RGBA_8888) {
+        // 对应的 mat 应该是 CV8UC4
+        Mat temp(info.height, info.width, CV_8UC4, pixels);
+        // 把 temp 中的数据复制到 mat 里面
+        temp.copyTo(mat);
+    } else if (info.format == ANDROID_BITMAP_FORMAT_RGB_565) {
+        // 对应的 mat 应该是 CV8UC2
+        Mat temp(info.height, info.width, CV_8UC2, pixels);
+        // mat 是 CV_8UC4 , CV8UC2 -> CV8UC4;
+        cvtColor(temp, mat, COLOR_BGR5652BGRA);
+    }
+
+    //其它要自己去转
+
+    //解锁 Bitmap 画布
+    AndroidBitmap_unlockPixels(env, bitmap);
+}
+
+void mat2Bitmap(JNIEnv *env, Mat mat, jobject bitmap){
+    // 1. 获取 bitmap 信息
+    AndroidBitmapInfo info;
+    void *pixels;
+    AndroidBitmap_getInfo(env, bitmap, &info);
+
+    // 锁定 Bitmap 画布
+    AndroidBitmap_lockPixels(env, bitmap, &pixels);
+
+    if (info.format == ANDROID_BITMAP_FORMAT_RGBA_8888) { // C4
+        Mat temp(info.height,info.width,CV_8UC4,pixels);
+        if(mat.type() == CV_8UC4){
+            mat.copyTo(temp);
+        } else if(mat.type() == CV_8UC2){
+            cvtColor(mat,temp,COLOR_BGR5652BGRA);
+        } else if(mat.type() == CV_8UC1){ // 灰度 mat
+            cvtColor(mat,temp,COLOR_GRAY2BGRA);
+        }
+    } else  if (info.format == ANDROID_BITMAP_FORMAT_RGB_565) { // C2
+        Mat temp(info.height,info.width,CV_8UC2,pixels);
+        if(mat.type() == CV_8UC4){
+            cvtColor(mat,temp,COLOR_BGRA2BGR565);
+        } else if(mat.type() == CV_8UC2){
+            mat.copyTo(temp);
+        } else if(mat.type() == CV_8UC1){ // 灰度 mat
+            cvtColor(mat,temp,COLOR_GRAY2BGR565);
+        }
+    }
+
+    // 其他要自己去转
+
+    // 解锁 Bitmap 画布
+    AndroidBitmap_unlockPixels(env,bitmap);
+}
+
+
+
+CascadeClassifier cascadeClassifier;
 
 extern "C"
-JNIEXPORT jstring JNICALL
-Java_com_east_ndk03opencvfacedetection_MainActivity_stringFromJNI(
-        JNIEnv* env,
-        jobject /* this */) {
-    std::string hello = "Hello from C++";
-    return env->NewStringUTF(hello.c_str());
+JNIEXPORT void JNICALL
+Java_com_east_ndk03opencvfacedetection_FaceDetection_loadCascade(JNIEnv *env, jobject thiz,
+                                                                 jstring file_path) {
+    const char *filePath = env->GetStringUTFChars(file_path,0);
+    cascadeClassifier.load(filePath);
+    LOGE("加载分类器文件成功");
+    env -> ReleaseStringUTFChars(file_path,filePath);
 }
+
+extern "C" JNIEXPORT jint JNICALL
+Java_com_east_ndk03opencvfacedetection_FaceDetection_faceDetectionSaveInfo(JNIEnv *env,
+                                                                           jobject thiz,
+                                                                           jobject bitmap) {
+
+    // 检测人脸  , opencv 有一个非常关键的类是 Mat ，opencv 是 C 和 C++ 写的，只会处理 Mat , android里面是Bitmap
+    // 1.Bitmap 转成 opencv 能操作的 C++ 对象 Mat ,Mat是一个矩阵
+    Mat mat;
+    bitmap2Mat(env, mat, bitmap);
+
+    // 处理灰度 opencv 处理灰度图，提高效率， 一般所有操作都会对其进行
+    Mat gray_mat;
+    cvtColor(mat,gray_mat,COLOR_BGRA2GRAY);
+
+    // 再次处理 直方均衡补偿 (轮廓会更明显)
+    Mat equalize_mat;
+    equalizeHist(gray_mat,equalize_mat);
+
+    // 识别人脸，当然我们可以直接用 彩色图去做，识别人脸要加载人脸分类器文件
+    std::vector<Rect> faces;
+    cascadeClassifier.detectMultiScale(equalize_mat,faces,1.1,5);
+    LOGE("人脸个数：%d",faces.size());
+
+    if(faces.size() == 1){
+        Rect faceRect = faces[0];
+
+        // 在人脸部分画个图
+        rectangle(mat,faceRect,Scalar(255,155,155),8);
+        // 把我们的 mat 数据又放回到 bitmap中
+        mat2Bitmap(env,mat,bitmap);
+        // 保存人脸信息 Mat, 图片 jpg
+        Mat face_info_mat(equalize_mat,faceRect);
+        // 保存 face_info_mat
+    }
+
+    //保存人脸信息
+    return 0;
+}
+
+
+

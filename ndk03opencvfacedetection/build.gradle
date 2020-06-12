@@ -17,7 +17,14 @@ android {
         externalNativeBuild {
             cmake {
                 cppFlags ""
+                //解决：dlopen failed: library "libc++_shared.so" not found
+                arguments "-DANDROID_STL=c++_shared"
+                abiFilters "armeabi-v7a"
             }
+        }
+
+        ndk{
+            abiFilters "armeabi-v7a"
         }
     }
 
