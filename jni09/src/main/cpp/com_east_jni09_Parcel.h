@@ -2,8 +2,8 @@
 #include "jni.h"
 /* Header for class com_darren_ndk_day13_Simple1 */
 
-#ifndef _Included_com_darren_ndk_day14_Parcel
-#define _Included_com_darren_ndk_day14_Parcel
+#ifndef _Included_com_east_jni09_Parcel
+#define _Included_com_east_jni09_Parcel
 #ifdef __cplusplus
 extern "C" {
 #endif
