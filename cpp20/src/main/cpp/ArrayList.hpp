@@ -8,7 +8,7 @@ template<class E>
 class ArrayList {
 private:
     // 长度，数组，当前交表
-    E *array;      // 当前数组指针
+    E *array = NULL;      // 当前数组指针
     int len = 0;   // 数组大小
     int index = 0; // 当前角标
 public:
