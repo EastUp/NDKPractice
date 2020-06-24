@@ -1,3 +1,4 @@
+include ':cpp21'
 include ':cpp20'
 include ':jni09'
 include ':ndk03opencvfacedetection'
