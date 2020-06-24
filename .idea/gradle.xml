@@ -11,6 +11,7 @@
         <option name="modules">
           <set>
             <option value="$PROJECT_DIR$" />
+            <option value="$PROJECT_DIR$/cpp20" />
             <option value="$PROJECT_DIR$/jni09" />
             <option value="$PROJECT_DIR$/ndk01md5" />
             <option value="$PROJECT_DIR$/ndk02ffmpegvideocompress" />
