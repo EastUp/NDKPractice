@@ -21,6 +21,8 @@ JNIEXPORT jstring JNICALL Java_com_east_cpp20_MainActivity_stringFromJNI
         __android_log_print(ANDROID_LOG_ERROR,"TAG","i = %d",list->get(i));
     }
 
+    delete(list);
+
     std::string hello = "Hello from C++";
     return env->NewStringUTF(hello.c_str());
 }
