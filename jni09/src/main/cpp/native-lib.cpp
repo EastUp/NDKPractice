@@ -54,7 +54,6 @@ extern "C" JNIEXPORT void JNICALL Java_com_east_jni09_Parcel_nativeSetDataPositi
         (JNIEnv * env, jobject jobj,jlong nativePtr,jint value){
     Parcel* parcel = reinterpret_cast<Parcel*>(nativePtr);
     parcel -> setDataPosition(value);
-    memcpy()
 }
 
 extern "C"  JNIEXPORT jint JNICALL Java_com_east_jni09_Parcel_nativeReadInt
