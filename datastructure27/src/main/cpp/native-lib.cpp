@@ -11,6 +11,15 @@ extern "C"
 JNIEXPORT jstring JNICALL Java_com_east_datastructure27_MainActivity_stringFromJNI
         (JNIEnv *env, jobject jobj) {
 
+//    LinkedList<int> linkedList;
+//    time_t start = clock();
+//    for (int i = 0; i < 50000; ++i) {
+//        linkedList.push(i);
+//    }
+//    time_t end = clock();
+//
+//    LOGE("耗费时间:%d",(end-start) / CLOCKS_PER_SEC);
+
     LinkedList<int> linkedList;
     linkedList.push(0);
     linkedList.push(1);

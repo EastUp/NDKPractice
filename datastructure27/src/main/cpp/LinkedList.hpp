@@ -56,6 +56,32 @@ template<class E>
 void LinkedList<E>::push(E e) {
     // 添加一个数据在列表的后面
     linkLast(e);
+
+
+    // 下面是单链表的添加
+    /*Node<E> *new_node = new Node<E>(e, NULL);
+
+    if (head) {// 0 -> 1 -> 2 -> 3
+        // ?
+        // head->next = new_node;
+        // 找到尾巴节点，有一个特定就是 next 节点为空
+        *//*Node<E>* h = head;
+        while(h){
+            if(h->next == NULL){
+                break;
+            }
+            h = h->next;
+        }
+        h->next = new_node;*//*
+        // 每一次都需要找到最后一个节点  50000
+        // 记录 last 节点
+
+        // Node<E> *last = node(len - 1);
+        last->next = new_node;// O(1)
+    } else {
+        head = new_node;
+    }
+    last = new_node;*/
 }
 
 template<class E>
@@ -97,6 +123,21 @@ void LinkedList<E>::insert(int index, E e) { // len = 4;
     }else{
         linkBefore(node(index),e);
     }
+
+
+    // 下面是单链表的插入
+    /*Node<E> *new_node = new Node<E>(e, NULL);
+    if (index == 0) {
+        Node<E> *h = head;
+        head = new_node;
+        new_node->next = h;
+    } else {
+        // 考虑最后一个位置
+        Node<E> *prev = node(index - 1);
+        Node<E> *next = prev->next;// NULL
+        prev->next = new_node;
+        new_node->next = next;
+    }*/
 }
 
 template<class E>
@@ -104,6 +145,20 @@ E LinkedList<E>::remove(int index) {
     // 考虑边界问题 0 , len ，mid
     assert(index>=0 && index < len);
     return unlink(node(index));
+
+    // 单链表的移除
+    /*if (index == 0) {
+    Node<E> *h = head;
+    head = h->next;
+    // 释放
+    delete h;
+    } else {
+        Node<E> *prev = node(index - 1);
+        // 删除的节点
+        Node<E> *cur = prev->next;
+        prev->next = cur->next;
+        delete cur;
+    }*/
 }
 
 template<class E>
