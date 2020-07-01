@@ -19,7 +19,7 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
-        cardBitmap = BitmapFactory.decodeResource(resources,R.drawable.card_n)
+        cardBitmap = BitmapFactory.decodeResource(resources,R.drawable.card)
         card_iv.setImageBitmap(cardBitmap)
 
         PermissionCheckUtils.checkPermission(this,
