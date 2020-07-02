@@ -143,7 +143,7 @@ int co1::find_card_numbers(const Mat &mat, std::vector<Mat> numbers) {
     imwrite("/storage/emulated/0/ocr/card_number_contours_mat_n.jpg", contours_mat);
 
     // 进行冒泡排序
-    for (int i = 0; i < contours.size(); ++i) {
+    for (int i = 0; i < contours.size() - 1; ++i) {
         for (int j = 0; j < contours.size() - i -1; ++j) {
             if(rects[j].x > rects[j+1].x)
                 swap(rects[j],rects[j+1]);

@@ -167,6 +167,10 @@ LinkedList<E>::~LinkedList() {
     for(int i=0; i < len; i++){
         delete(node(i));
     }
+
+    // 头指针和尾指针置为NULL
+    first = NULL;
+    last = NULL;
 }
 
 

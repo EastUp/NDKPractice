@@ -1,3 +1,4 @@
+include ':datastructure28bubbkeselectsort'
 include ':datastructure27'
 include ':ndk31opencvbankocr'
 include ':cpp21'
