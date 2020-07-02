@@ -65,23 +65,54 @@ void optimizeBubbleSort(int arr[], int len){
 }
 
 // 插入排序 - 前身
-/*void insertSort(int arr[],int len){
+/*
+void insertSort(int arr[],int len){
     for (int i = 1; i < len; ++i) {
         for (int j = i; j >0 && arr[j] < arr[j-1] ; --j) {
             swap(arr[j],arr[j-1]);
         }
     }
-}*/
+}
 
 void insertSort(int arr[],int len){
-    int j,i;
+    for (int i = 1; i < len; ++i) {
+        for (int j = i; j >0; --j) {
+            if(arr[j] < arr[j-1] )
+                swap(arr[j],arr[j-1]);
+            else
+                break;
+        }
+    }
+}
+*/
+
+// 插入排序优化
+void insertSort(int arr[],int len){
+    int temp,j,i;
     for (i = 1; i < len; ++i) {
         // 当前的位置
-        int temp = arr[i];
+        temp = arr[i];
         for (j = i; j >0 && arr[j-1] >temp ; --j) {
             arr[j] = arr[j-1];
         }
-        // 插入合适的位置
+        // 插入合适的位置 (这个时候的j 是 -- 了的哦 注意看循环的最后一个条件)
+        arr[j] = temp;
+    }
+}
+
+// 插入排序优化1(这样会跳出循环更快)
+void insertSort1(int arr[],int len){
+    int temp,j,i;
+    for (i = 1; i < len; ++i) {
+        // 当前的位置
+        temp = arr[i];
+        for (j = i; j >0; --j) {
+            if(arr[j-1] >temp)
+                arr[j] = arr[j-1];
+            else
+                break;
+        }
+        // 插入合适的位置 (这个时候的j 是 -- 了的哦 注意看循环的最后一个条件)
         arr[j] = temp;
     }
 }
@@ -120,24 +151,26 @@ JNIEXPORT jstring JNICALL Java_com_east_datastructure28bubbleselectsort_MainActi
         (JNIEnv *env, jobject jobj) {
 
     // 测试，取时间，两个算法
-    int len = 10;
+    int len = 50000;
     int *arr = ArrayUtil::create_random_array(len,20,100000);
     // 创建的时接近排好序的数据
 //    int *arr = ArrayUtil::create_nearly_ordered_array(len,20);
     int *arr1 = ArrayUtil::copy_random_array(arr,len);
     int *arr2 = ArrayUtil::copy_random_array(arr,len);
     int *arr3 = ArrayUtil::copy_random_array(arr,len);
+    int *arr4 = ArrayUtil::copy_random_array(arr,len);
     // ArrayUtil::sort_array("optimizeBubbleSort",optimizeBubbleSort,arr2,len); // 如果很多有序的话会提前终止循环
     // ArrayUtil::sort_array("bubbleSort",bubbleSort,arr,len); // 3.299840
-    ArrayUtil::sort_array("selectSort",selectSort,arr1,len); // 0.876889 O(n2)
+    // ArrayUtil::sort_array("selectSort",selectSort,arr1,len); // 0.876889 O(n2)
     ArrayUtil::sort_array("insertSort",insertSort,arr3,len); //
+    ArrayUtil::sort_array("insertSort1",insertSort1,arr4,len); //
+    // 如果对于接近排好序的数据，时间复杂度最优 O(n)，考虑最坏的情况 O(n2)
 
-    print(arr3,len);
-
-    // 思考：冒泡的优化，插入排序，希尔排序，怎样去看 log 日志  O(n平方)
     delete[](arr);
     delete[](arr1);
     delete[](arr2);
+    delete[](arr3);
+    delete[](arr4);
     // 对性能进行测试  看错误日志
     std::string hello = "Hello from C++";
     return env->NewStringUTF(hello.c_str());
