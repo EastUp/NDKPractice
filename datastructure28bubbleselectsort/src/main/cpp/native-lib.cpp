@@ -39,7 +39,7 @@ void selectSort(int arr[],int len){
     }
 }
 
-void print(int arr[],int len){
+void print_array(int *arr, int len){
     for (int i = 0; i < len; ++i) {
         // 这个方法比较复杂
         LOGE("%d",arr[i]);
@@ -128,21 +128,15 @@ void shellInsertSort(int arr[],int len){ // 8
             for(j = i + increment; j < len; j += increment){
                 int tmp = arr[j]; // 5
                 // k = j = 6;
-                for(k = j; k > 0 && arr[k - increment] > tmp; k -= increment){
+                for(k = j; k > i  && arr[k - increment] > tmp; k -= increment){
                     // 往后挪动
                     arr[k] = arr[k - increment];
                 }
-                // k是有问题的
-                LOGE("temp = %d,%d,%d,%d",tmp , k, j ,increment);
                 arr[k] = tmp;
-                // k = 5;
-                // print_array(arr,len);
-                // LOGE("---------------");
             }
         }
         increment /= 2;
     }
-
 }
 
 
@@ -151,20 +145,25 @@ JNIEXPORT jstring JNICALL Java_com_east_datastructure28bubbleselectsort_MainActi
         (JNIEnv *env, jobject jobj) {
 
     // 测试，取时间，两个算法
-    int len = 50000;
-    int *arr = ArrayUtil::create_random_array(len,20,100000);
+    int len = 20000;
+    int *arr = ArrayUtil::create_nearly_ordered_array(len,20);
+    LOGE("------------------1");
+//    int *arr = ArrayUtil::create_random_array(len,20,100000);
     // 创建的时接近排好序的数据
 //    int *arr = ArrayUtil::create_nearly_ordered_array(len,20);
     int *arr1 = ArrayUtil::copy_random_array(arr,len);
     int *arr2 = ArrayUtil::copy_random_array(arr,len);
     int *arr3 = ArrayUtil::copy_random_array(arr,len);
     int *arr4 = ArrayUtil::copy_random_array(arr,len);
+//    int *arr5 = new int[]{1,-1,-2,-3,7,8};
     // ArrayUtil::sort_array("optimizeBubbleSort",optimizeBubbleSort,arr2,len); // 如果很多有序的话会提前终止循环
     // ArrayUtil::sort_array("bubbleSort",bubbleSort,arr,len); // 3.299840
     // ArrayUtil::sort_array("selectSort",selectSort,arr1,len); // 0.876889 O(n2)
-    ArrayUtil::sort_array("insertSort",insertSort,arr3,len); //
+    ArrayUtil::sort_array("insertSort",insertSort,arr3,len); // 提前终止循环
     ArrayUtil::sort_array("insertSort1",insertSort1,arr4,len); //
     // 如果对于接近排好序的数据，时间复杂度最优 O(n)，考虑最坏的情况 O(n2)
+    ArrayUtil::sort_array("shellInsertSort",shellInsertSort,arr,len);
+
 
     delete[](arr);
     delete[](arr1);

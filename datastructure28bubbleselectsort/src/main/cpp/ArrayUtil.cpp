@@ -39,7 +39,7 @@ namespace ArrayUtil{
         for (int i = 0; i < swapNums; ++i) {
             int randomX = rand() % len;
             int randomY = rand() % len;
-            std::swap(randomX,randomX);
+            std::swap(arr[randomX],arr[randomY]);
         }
         return arr;
     }
