@@ -7,7 +7,7 @@ android {
     buildToolsVersion "29.0.3"
 
     defaultConfig {
-        applicationId "com.east.datastructure28bubbkeselectsort"
+        applicationId "com.east.datastructure28bubbleselectsort"
         minSdkVersion 16
         targetSdkVersion 29
         versionCode 1

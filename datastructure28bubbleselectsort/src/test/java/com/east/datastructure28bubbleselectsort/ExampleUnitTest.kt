@@ -1,4 +1,4 @@
-package com.east.datastructure28bubbkeselectsort
+package com.east.datastructure28bubbleselectsort
 
 import org.junit.Test
 

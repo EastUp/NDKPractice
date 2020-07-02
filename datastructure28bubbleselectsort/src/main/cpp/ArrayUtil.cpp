@@ -23,6 +23,27 @@ namespace ArrayUtil{
         return arr;
     }
 
+    /**
+     *
+     * @param len
+     * @param swapNums  打乱几组顺序
+     * @return
+     */
+    int *create_nearly_ordered_array(int len,int swapNums){
+        int *arr = new int[len];
+
+        for (int i = 0; i < len; ++i) {
+            arr[i] = i;
+        }
+
+        for (int i = 0; i < swapNums; ++i) {
+            int randomX = rand() % len;
+            int randomY = rand() % len;
+            std::swap(randomX,randomX);
+        }
+        return arr;
+    }
+
     int* copy_random_array(int *arr,int len){
         int *copy_arr = new int[len];
         memcpy(copy_arr,arr, sizeof(int)*len);
