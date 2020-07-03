@@ -42,7 +42,7 @@ void selectSort(int arr[],int len){
 void print_array(int *arr, int len){
     for (int i = 0; i < len; ++i) {
         // 这个方法比较复杂
-        LOGE("%d",arr[i]);
+        LOGE("i = %d--->value = %d",i,arr[i]);
     }
 }
 
@@ -155,16 +155,136 @@ void shellInsertSort1(int arr[],int len){ // 8
     }
 }
 
+// 对数组区间 [l,mid] 和 [mid+1,r] 进行归并
+void merge_(int arr[],int l,int mid,int r){
+    // 1. 对数组进行一次拷贝
+    int temp[r - l + 1];
+    for(int i = l ;i <= r; ++i){
+        temp[i -l] = arr[i];
+    }
+    // 2. 确定好分析之后的变量
+    int i = l;
+    int j = mid + 1;
+    int k = l;
+    for (; k <= r; ++k) {
+        if(i > mid){
+            arr[k] = temp[j - l];
+            j++;
+        }else if( j > r){
+            arr[k] = temp[i -l];
+            i++;
+        }else if(temp[i - l] < temp[j - l]){ // 临时数据里面的 i 位置和 j 位置去比较
+            arr[k] = temp[i - l];
+            i++;
+        } else{
+            arr[k] = temp[j - l];
+            j++;
+        }
+    }
+}
+
+// 对数组的 [l,r] 区间进行归并排序
+void mergeSort_(int arr[], int l, int r){
+    // 递归到底的情况
+    if(l >= r)
+        return;
+    int mid = ( l + r) >> 1;
+    mergeSort_(arr,l,mid);//左边归并排序，使得左子序列有序
+    mergeSort_(arr,mid + 1,r);//右边归并排序，使得右子序列有序
+    // 优化要根据具体的场景去做（因为前面是排好序的！！）
+    if(arr[mid] > arr[mid + 1]){
+        merge_(arr, l, mid, r);//将两个有序子数组合并操作
+    }
+}
+
+// 归并排序
+void mergeSort(int arr[],int len){
+    mergeSort_(arr,0,len - 1);
+}
+
+
+// 对数组 arr 区间[l,r] 进行分割操作
+int partition_(int arr[], int l, int r) {// 10 , 20
+    // 优化，跟区间[l,r]随机位置进行比较
+    swap(arr[l], arr[rand() % (r - l + 1) + l]);
+    int v = arr[l];
+    // 以 p 为分割，[l+1,p]<v 和  [p+1,r] > v
+    int p = l;
+    for (int i = l; i <= r; ++i) {
+        if (arr[i] < v) {
+            // 只需要处理小于的情况
+            swap(arr[p + 1], arr[i]);
+            p++;
+        }
+    }
+    swap(arr[l], arr[p]);
+    return p;
+}
+
+// 对数组 arr 区间[l,r] 进行快速排序
+void quickSort_(int arr[], int l, int r) {
+    // 递归到底的情况
+    if (l >= r) {
+        return;
+    }
+    int p = partition_(arr, l, r);
+    quickSort_(arr, l, p - 1); // 对基准元素左边的元素进行递归排序
+    quickSort_(arr, p + 1, r); // 对基准元素右边的进行递归排序
+}
+
+// 快速排序
+void quickSort(int arr[], int len) {
+    srand(time(NULL));
+    quickSort_(arr, 0, len - 1);
+}
+
+void quickSort3ways_(int arr[], int l, int r) {
+    // 递归到底的情况
+    if (l >= r) {
+        return;
+    }
+
+    // 定义变量
+    swap(arr[l], arr[rand() % (r - l + 1) + l]);
+    int v = arr[l];
+
+    int lt = l;//[l+1, lt] < v
+    int gt = r + 1;// [gt,r] >v
+    int i = l + 1;// [lt + 1,i) = v
+
+    while (gt > i) {
+        if (arr[i] > v) {
+            swap(arr[i], arr[gt - 1]);
+            gt--;
+        } else if (arr[i] < v) {
+            swap(arr[i], arr[lt + 1]);
+            i++;
+            lt++;
+        } else {
+            i++;
+        }
+    }
+
+    swap(arr[l], arr[lt]);
+    quickSort3ways_(arr, l, lt - 1);
+    quickSort3ways_(arr, gt, r);
+}
+
+void quickSort3ways(int arr[], int len) {
+    srand(time(NULL));
+    quickSort3ways_(arr, 0, len - 1);
+}
+
 
 extern "C"
 JNIEXPORT jstring JNICALL Java_com_east_datastructure28bubbleselectsort_MainActivity_stringFromJNI
         (JNIEnv *env, jobject jobj) {
 
     // 测试，取时间，两个算法
-    int len = 100000;
-//    int *arr = ArrayUtil::create_nearly_ordered_array(len,10);
+    int len = 40000;
+    int *arr = ArrayUtil::create_nearly_ordered_array(len,10);
+//    int *arr = ArrayUtil::create_random_array(len,2,10000);
     LOGE("------------------1");
-    int *arr = ArrayUtil::create_random_array(len,20,100000);
     // 创建的时接近排好序的数据
 //    int *arr = ArrayUtil::create_nearly_ordered_array(len,20);
     int *arr1 = ArrayUtil::copy_random_array(arr,len);
@@ -174,13 +294,13 @@ JNIEXPORT jstring JNICALL Java_com_east_datastructure28bubbleselectsort_MainActi
 //    int *arr5 = new int[]{1,-1,-2,-3,7,8};
     // ArrayUtil::sort_array("optimizeBubbleSort",optimizeBubbleSort,arr2,len); // 如果很多有序的话会提前终止循环
     // ArrayUtil::sort_array("bubbleSort",bubbleSort,arr,len); // 3.299840
-    // ArrayUtil::sort_array("selectSort",selectSort,arr1,len); // 0.876889 O(n2)
-    // ArrayUtil::sort_array("insertSort",insertSort,arr3,len); // 提前终止循环
+     ArrayUtil::sort_array("selectSort",selectSort,arr1,len); // 0.876889 O(n2)
+     ArrayUtil::sort_array("insertSort",insertSort,arr3,len); // 提前终止循环
     // ArrayUtil::sort_array("insertSort1",insertSort1,arr4,len); //
     // 如果对于接近排好序的数据，时间复杂度最优 O(n)，考虑最坏的情况 O(n2)
 //    ArrayUtil::sort_array("shellInsertSort",shellInsertSort,arr,len);
-    ArrayUtil::sort_array("shellInsertSort1",shellInsertSort1,arr,len);
-    print_array(arr,len);
+//    ArrayUtil::sort_array("shellInsertSort1",shellInsertSort1,arr,len);
+    ArrayUtil::sort_array("mergeSort",mergeSort,arr,len);
     delete[](arr);
     delete[](arr1);
     delete[](arr2);
