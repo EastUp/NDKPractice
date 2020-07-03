@@ -140,15 +140,31 @@ void shellInsertSort(int arr[],int len){ // 8
 }
 
 
+void shellInsertSort1(int arr[],int len){ // 8
+    // 思考 ： 求算法的复杂度
+    int i, j ;
+    for(int increment = len / 2;increment >0;increment /= 2){ // 4组
+        // 希尔排序
+        for(i = increment; i < len; ++i){ // i = 0, increment = 2
+            int tmp = arr[i]; // 5
+            for(j = i ; j - increment >= 0 && tmp < arr[j - increment]; j -= increment){
+                arr[j] = arr[j - increment];
+            }
+            arr[j] = tmp;
+        }
+    }
+}
+
+
 extern "C"
 JNIEXPORT jstring JNICALL Java_com_east_datastructure28bubbleselectsort_MainActivity_stringFromJNI
         (JNIEnv *env, jobject jobj) {
 
     // 测试，取时间，两个算法
-    int len = 20000;
-    int *arr = ArrayUtil::create_nearly_ordered_array(len,20);
+    int len = 100000;
+//    int *arr = ArrayUtil::create_nearly_ordered_array(len,10);
     LOGE("------------------1");
-//    int *arr = ArrayUtil::create_random_array(len,20,100000);
+    int *arr = ArrayUtil::create_random_array(len,20,100000);
     // 创建的时接近排好序的数据
 //    int *arr = ArrayUtil::create_nearly_ordered_array(len,20);
     int *arr1 = ArrayUtil::copy_random_array(arr,len);
@@ -159,12 +175,12 @@ JNIEXPORT jstring JNICALL Java_com_east_datastructure28bubbleselectsort_MainActi
     // ArrayUtil::sort_array("optimizeBubbleSort",optimizeBubbleSort,arr2,len); // 如果很多有序的话会提前终止循环
     // ArrayUtil::sort_array("bubbleSort",bubbleSort,arr,len); // 3.299840
     // ArrayUtil::sort_array("selectSort",selectSort,arr1,len); // 0.876889 O(n2)
-    ArrayUtil::sort_array("insertSort",insertSort,arr3,len); // 提前终止循环
-    ArrayUtil::sort_array("insertSort1",insertSort1,arr4,len); //
+    // ArrayUtil::sort_array("insertSort",insertSort,arr3,len); // 提前终止循环
+    // ArrayUtil::sort_array("insertSort1",insertSort1,arr4,len); //
     // 如果对于接近排好序的数据，时间复杂度最优 O(n)，考虑最坏的情况 O(n2)
-    ArrayUtil::sort_array("shellInsertSort",shellInsertSort,arr,len);
-
-
+//    ArrayUtil::sort_array("shellInsertSort",shellInsertSort,arr,len);
+    ArrayUtil::sort_array("shellInsertSort1",shellInsertSort1,arr,len);
+    print_array(arr,len);
     delete[](arr);
     delete[](arr1);
     delete[](arr2);

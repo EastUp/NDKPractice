@@ -12,6 +12,9 @@
 命令：`adb logcat | ndk-stack -sym E:\AndroidStudioProjects\MyBintrayLib\NDKPractice\datastructure28bubbkeselectsort\build\intermediates\cmake\debu
 g\obj\arm64-v8a` // 路径为有.so库的路径
 
+如果出现：`'ndk-stack' 不是内部或外部命令，也不是可运行的程序`,则需要去ndk 目录下点击 `ndk-gdb.cmd`,再关闭程序重新打开尝试
+
+
 ### 1.2 `addr2line`
 条件：配置addr2line的环境变量：  
 `D:\AndroidSdk\ndk\21.2.6472646\toolchains\aarch64-linux-android-4.9\prebuilt\windows-x86_64\bin`
