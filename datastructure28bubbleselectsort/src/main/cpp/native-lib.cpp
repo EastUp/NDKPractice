@@ -234,7 +234,7 @@ void quickSort_(int arr[], int l, int r) {
 
 // 快速排序
 void quickSort(int arr[], int len) {
-    srand(time(NULL));
+    srand(time(NULL)); // 初始化随机数发生器
     quickSort_(arr, 0, len - 1);
 }
 
@@ -271,7 +271,7 @@ void quickSort3ways_(int arr[], int l, int r) {
 }
 
 void quickSort3ways(int arr[], int len) {
-    srand(time(NULL));
+    srand(time(NULL)); // 初始化随机数发生器
     quickSort3ways_(arr, 0, len - 1);
 }
 
@@ -294,13 +294,15 @@ JNIEXPORT jstring JNICALL Java_com_east_datastructure28bubbleselectsort_MainActi
 //    int *arr5 = new int[]{1,-1,-2,-3,7,8};
     // ArrayUtil::sort_array("optimizeBubbleSort",optimizeBubbleSort,arr2,len); // 如果很多有序的话会提前终止循环
     // ArrayUtil::sort_array("bubbleSort",bubbleSort,arr,len); // 3.299840
-     ArrayUtil::sort_array("selectSort",selectSort,arr1,len); // 0.876889 O(n2)
-     ArrayUtil::sort_array("insertSort",insertSort,arr3,len); // 提前终止循环
+    // ArrayUtil::sort_array("selectSort",selectSort,arr1,len); // 0.876889 O(n2)
+    // ArrayUtil::sort_array("insertSort",insertSort,arr3,len); // 提前终止循环
     // ArrayUtil::sort_array("insertSort1",insertSort1,arr4,len); //
     // 如果对于接近排好序的数据，时间复杂度最优 O(n)，考虑最坏的情况 O(n2)
 //    ArrayUtil::sort_array("shellInsertSort",shellInsertSort,arr,len);
 //    ArrayUtil::sort_array("shellInsertSort1",shellInsertSort1,arr,len);
-    ArrayUtil::sort_array("mergeSort",mergeSort,arr,len);
+    ArrayUtil::sort_array("quickSort",quickSort,arr,len);
+    ArrayUtil::sort_array("mergeSort",mergeSort,arr1,len);
+    ArrayUtil::sort_array("quickSort3ways",quickSort3ways,arr2,len);
     delete[](arr);
     delete[](arr1);
     delete[](arr2);
