@@ -55,6 +55,7 @@ ArrayQueue<E>::ArrayQueue():ArrayQueue(4){
 
 template <class E>
 ArrayQueue<E>::ArrayQueue(int cap){
+    // cap 可以乱传，以下代码保证是 2 的幂次
     int n = cap - 1;
     if(cap >= 2){
         n |= n >> 1;

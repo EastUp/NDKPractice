@@ -29,7 +29,7 @@ JNIEXPORT jstring JNICALL Java_com_east_datastructure32queue_MainActivity_string
 
     // hannuota(3,'A','B','C');
 
-    ArrayQueue<int> queue;
+    ArrayQueue<int> queue(9);
 
     for (int i = 0; i < 10; ++i) {
         queue.enqueue(i);
