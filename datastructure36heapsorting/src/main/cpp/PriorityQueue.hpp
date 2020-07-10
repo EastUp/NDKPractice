@@ -1,0 +1,14 @@
+//
+// Created by 123 on 2020/7/10.
+//
+
+#ifndef NDKPRACTICE_PRIORITYQUEUE_HPP
+#define NDKPRACTICE_PRIORITYQUEUE_HPP
+
+
+class PriorityQueue {
+
+};
+
+
+#endif //NDKPRACTICE_PRIORITYQUEUE_HPP
