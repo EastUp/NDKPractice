@@ -1,3 +1,4 @@
+include ':datastructure36heapsorting'
 include ':datastructure35binarytree'
 include ':datastructure32queue'
 include ':datastructure31recursionandstack'
