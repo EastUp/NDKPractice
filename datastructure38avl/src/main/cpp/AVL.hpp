@@ -138,6 +138,17 @@ private:
         return right;
     }
 
+    // 先左旋再右旋
+    TreeNode<K,V>* l_r_rotation(TreeNode<K,V> *pNode){
+        pNode->left = l_rotation(pNode->left);
+        return r_rotation(pNode);
+    }
+
+    // 先右旋再左旋
+    TreeNode<K,V>* r_l_rotation(TreeNode<K,V> *pNode){
+        pNode->right = r_rotation(pNode->right);
+        return l_rotation(pNode);
+    }
 
     // 删除所有的数据
     void deleteAllNode(TreeNode<K,V> *pNode){
@@ -158,13 +169,23 @@ private:
             pNode->left = addNode(pNode->left,key,value);
             if(getHeight(pNode->left) - getHeight(pNode->right) == 2){
                 // 调整
-                pNode = r_rotation(pNode);
+                if(getHeight(pNode->left->right) > getHeight(pNode->left->left)){
+                    // 先左旋再右旋
+                    pNode = l_r_rotation(pNode);
+                }else{
+                    pNode = r_rotation(pNode);
+                }
             }
         } else if (pNode->value < key){
             pNode->right = addNode(pNode->right,key,value);
             if(getHeight(pNode->right) - getHeight(pNode->left) == 2){
                 // 调整
-                pNode = l_rotation(pNode);
+                if(getHeight(pNode->right->left)>getHeight(pNode->right->right)){
+                    // 先右旋再左旋
+                    pNode = r_l_rotation(pNode);
+                }else{
+                    pNode = l_rotation(pNode);
+                }
             }
         }else{
             pNode->value = value;
@@ -182,10 +203,30 @@ private:
         if(!pNode)
             return NULL;
 
-        if(pNode->key > key)
+        if(pNode->key > key){
             pNode->left = removeNode(pNode->left,key);
-        else if(pNode->key < key)
+            if(getHeight(pNode->right) - getHeight(pNode->left) == 2){
+                // 调整
+                if(getHeight(pNode->right->left)>getHeight(pNode->right->right)){
+                    // 先右旋再左旋
+                    pNode = r_l_rotation(pNode);
+                }else{
+                    pNode = l_rotation(pNode);
+                }
+            }
+        }
+        else if(pNode->key < key){
             pNode->right = removeNode(pNode->right,key);
+            if(getHeight(pNode->left) - getHeight(pNode->right) == 2){
+                // 调整
+                if(getHeight(pNode->left->right) > getHeight(pNode->left->left)){
+                    // 先左旋再右旋
+                    pNode = l_r_rotation(pNode);
+                }else{
+                    pNode = r_rotation(pNode);
+                }
+            }
+        }
         else{ // 相等找到了
             count --;
             if(pNode->left == NULL && pNode->right == NULL){
@@ -200,15 +241,33 @@ private:
                 delete (pNode);
                 return left;
             } else {
-                // 左右两子树都不为空（把左子树的最大值作为根，或者右子树的最小值作为根），因为下面会删除这个节点所以需要重新赋值创建
-                TreeNode<K, V> *successor = new TreeNode<K, V>(maximum(pNode->left));
-                successor->left = deleteMax(pNode->left);
-                count++;
-                successor->right = pNode->right;
-                delete (pNode);
-                return successor;
+                // 左右子树都不为 NULL
+                if(getHeight(pNode->left) > getHeight(pNode->right)){
+                    // 左右两子树都不为空（把左子树的最大值作为根，或者右子树的最小值作为根），因为下面会删除这个节点所以需要重新赋值创建
+                    TreeNode<K, V> *max = maximum(pNode->left);
+                    TreeNode<K, V> *successor = new TreeNode<K, V>(max);
+                    // 删除左边最大的node，并更新高度
+                    successor->left = removeNode(pNode->left,max->key);
+                    count++;
+                    successor->right = pNode->right;
+                    delete (pNode);
+                    pNode = successor;
+                }else{
+                    // 左右两子树都不为空（把左子树的最大值作为根，或者右子树的最小值作为根），因为下面会删除这个节点所以需要重新赋值创建
+                    TreeNode<K, V> *min = minimum(pNode->right);
+                    TreeNode<K, V> *successor = new TreeNode<K, V>(min);
+                    // 删除右边最小的node，并更新高度
+                    successor->right = removeNode(pNode->right,min->key);
+                    count++;
+                    successor->left = pNode->left;
+                    delete (pNode);
+                    pNode = successor;
+                }
             }
         }
+
+        pNode->height = max(getHeight(pNode->left),getHeight(pNode->right))+1;
+
         return pNode;
     }
 
@@ -231,6 +290,15 @@ private:
             return pNode;
         }
         return maximum(pNode->right);
+    }
+
+    // 查找当前树的右边的最小值 （右边的最小值怎么找？）
+    TreeNode<K, V> *minimum(TreeNode<K, V> *pNode) {
+        // 不断的往右边找，直到找到右子树为空节点
+        if (pNode->left == NULL) {
+            return pNode;
+        }
+        return maximum(pNode->left);
     }
 
     void infixOrderTraverse(TreeNode<K,V> *pNode,void(*log)(K,V)){
