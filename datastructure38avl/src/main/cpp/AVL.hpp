@@ -6,6 +6,9 @@
 #define NDKPRACTICE_BST_HO
 
 #include <iostream>
+#include <queue>
+
+using namespace std;
 
 // c++ map multiMap 红黑树
 // java Map 和 c++ Map 比较
@@ -16,15 +19,16 @@ public:
     TreeNode<K,V> *right = NULL;
     K key = NULL;
     V value = NULL;
+    int height = 1; //自己算上，所以为1
 
-    TreeNode(TreeNode<K,V> *pNode){
+    TreeNode(TreeNode<K,V> *pNode):height(pNode->height){
         this->left = pNode->left;
         this->right = pNode->right;
         this->key = pNode->key;
         this->value = pNode->value;
     }
 
-    TreeNode(K key, V value):key(key),value(value){
+    TreeNode(K key, V value):key(key),value(value),height(1){
     }
 
 };
@@ -94,8 +98,47 @@ public:
     }
 
 
+    // 层序排列
+    void levelOrderTraverse(void(*log)(K,V)){
+        levelOrderTraverse(root,log);
+    }
+
 
 private:
+
+    int getHeight(TreeNode<K,V> *pNode){
+        return pNode ? pNode->height : 0;
+    }
+
+    // 右旋
+    TreeNode<K,V>* r_rotation(TreeNode<K,V> *pNode){
+        TreeNode<K,V> *left = pNode->left;
+        TreeNode<K,V> *right = left->right;
+
+        left->right = pNode;
+        pNode->left = right;
+
+        // 更新高度
+        pNode->height = max(getHeight(pNode->left),getHeight(pNode->right))+1;
+        left->height = max(getHeight(left->left),getHeight(left->right))+1;
+        return left;
+    }
+
+    // 左旋
+    TreeNode<K,V>* l_rotation(TreeNode<K,V> *pNode){
+        TreeNode<K,V> *right = pNode->right;
+        TreeNode<K,V> *left = right->left;
+
+        right->left = pNode;
+        pNode->right = left;
+
+        // 更新高度
+        pNode->height = max(getHeight(pNode->left),getHeight(pNode->right))+1;
+        right->height = max(getHeight(right->left),getHeight(right->right))+1;
+        return right;
+    }
+
+
     // 删除所有的数据
     void deleteAllNode(TreeNode<K,V> *pNode){
         if(pNode->left)
@@ -113,11 +156,23 @@ private:
 
         if(pNode->value > key){
             pNode->left = addNode(pNode->left,key,value);
+            if(getHeight(pNode->left) - getHeight(pNode->right) == 2){
+                // 调整
+                pNode = r_rotation(pNode);
+            }
         } else if (pNode->value < key){
             pNode->right = addNode(pNode->right,key,value);
+            if(getHeight(pNode->right) - getHeight(pNode->left) == 2){
+                // 调整
+                pNode = l_rotation(pNode);
+            }
         }else{
             pNode->value = value;
         }
+
+        // 更新二叉树高度
+        pNode->height = max(getHeight(pNode->left),getHeight(pNode->right))+1;
+
 
         return pNode;
     }
@@ -192,6 +247,21 @@ private:
 
         // 再右孩子
         infixOrderTraverse(pNode->right,log);
+    }
+
+    void levelOrderTraverse(TreeNode<K,V> *pNode,void(*log)(K,V)){
+        queue<TreeNode<K,V> *> que;
+        que.push(pNode);
+        while (!que.empty()){
+            TreeNode<K,V> *node = que.front();
+            log(node->key,node->value);
+            que.pop(); // 弹出
+            if(node->left)
+                que.push(node->left);
+
+            if(node->right)
+                que.push(node->right);
+        }
     }
 };
 

@@ -20,7 +20,7 @@ JNIEXPORT jstring JNICALL Java_com_east_datastructure37binarysearchtree_MainActi
         (JNIEnv *env, jobject jobj) {
 
 
-    BST<int, int> *bst = new BST<int, int>();
+    AVL<int, int> *bst = new AVL<int, int>();
     bst->put(2, 2);
     bst->put(-11, -11);
     bst->put(-13, -13);
