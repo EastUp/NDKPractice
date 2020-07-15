@@ -30,11 +30,17 @@ JNIEXPORT jstring JNICALL Java_com_east_datastructure37binarysearchtree_MainActi
     bst->put(7, 7);
 
     bst->remove(2);
+    bst->remove(-11);
+    bst->remove(-13);
+    bst->remove(0);
+    bst->remove(8);
+    bst->remove(3);
+    bst->remove(7);
 
     bst->infixOrderTraverse(visit);
 
-    LOGE("%d", bst->contains(100));
-    LOGE("%d", bst->contains(7));
+//    LOGE("%d", bst->contains(100));
+//    LOGE("%d", bst->contains(7));
 
     std::string hello = "Hello from C++";
     return env->NewStringUTF(hello.c_str());

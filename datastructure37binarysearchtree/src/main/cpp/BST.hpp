@@ -89,7 +89,7 @@ public:
     }
 
     // 中序遍历 就是相当于从小到大的升序遍历了
-    void infixOrderTraverse(void(*log)(int,int)){
+    void infixOrderTraverse(void(*log)(K,V)){
         infixOrderTraverse(root,log);
     }
 
@@ -123,10 +123,14 @@ private:
     }
 
     TreeNode<K,V> *removeNode(TreeNode<K,V> *pNode,K key){
+
+        if(!pNode)
+            return NULL;
+
         if(pNode->key > key)
             pNode->left = removeNode(pNode->left,key);
         else if(pNode->key < key)
-            pNode->right = removeNode(pNode->right);
+            pNode->right = removeNode(pNode->right,key);
         else{ // 相等找到了
             count --;
             if(pNode->left == NULL && pNode->right == NULL){
@@ -141,7 +145,7 @@ private:
                 delete (pNode);
                 return left;
             } else {
-                // 左右两子树都不为空（把左子树的最大值作为根，或者右子树的最小值作为根）
+                // 左右两子树都不为空（把左子树的最大值作为根，或者右子树的最小值作为根），因为下面会删除这个节点所以需要重新赋值创建
                 TreeNode<K, V> *successor = new TreeNode<K, V>(maximum(pNode->left));
                 successor->left = deleteMax(pNode->left);
                 count++;
@@ -171,10 +175,15 @@ private:
         if (pNode->right == NULL) {
             return pNode;
         }
-        return maximum(pNode->left);
+        return maximum(pNode->right);
     }
 
-    void infixOrderTraverse(TreeNode<K,V> *pNode,void(*log)(int,int)){
+    void infixOrderTraverse(TreeNode<K,V> *pNode,void(*log)(K,V)){
+        // 所有递归都应有递归到底的情况
+        if (pNode == NULL) {
+            return;
+        }
+
         // 先左孩子
         infixOrderTraverse(pNode->left,log);
 
