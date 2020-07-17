@@ -169,6 +169,8 @@ public:
         // 调整顺序
         solveDoubleRed(new_node);
 
+        count++;
+
         return iterator(new_node);
 
     }
