@@ -34,6 +34,11 @@ JNIEXPORT jstring JNICALL Java_com_east_datastructure40redblacktree_MainActivity
     map->insert(6, 6);
     map->insert(7, 7);
 
+
+
+    map->remove(2);
+    map->remove(-5);
+
     map->levelTraverse(visit);
 
     std::string hello = "Hello from C++";

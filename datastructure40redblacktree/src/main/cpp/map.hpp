@@ -175,8 +175,138 @@ public:
 
     }
 
-    bool remove() {
+    TreeNode *findTree(K key) {
+        TreeNode *node = root;
+        while (node) {
+            if (key == node->key) {
+                return node;
+            } else if (key > node->key) {
+                node = node->right;
+            } else {
+                node = node->left;
+            }
+        }
+        return NULL;
+    }
 
+    // 关键代码
+    void solveLostBlack(TreeNode *pNode) {
+        while (pNode != root && pNode->color == black) {
+            if (left(parent(pNode)) == pNode) {// 当前节点是父亲节点的左节点
+                TreeNode *sib = brother(pNode);
+                if (getColor(sib) == red) { // 想办法把兄弟节点变成黑色  情况 1
+                    setColor(sib, black);
+                    setColor(parent(pNode), red);
+                     l_rotation(parent(pNode));
+                    sib = brother(pNode);
+                }
+                if (getColor(left(sib)) == black && getColor(right(sib)) == black) { // 情况2
+                    setColor(sib, red);
+                    pNode = parent(pNode);
+                } else {
+                    // 情况 3
+                    if (getColor(right(sib)) == black) {
+                        setColor(sib,red);
+                        setColor(left(sib),black);
+                        r_rotation(sib);
+                        sib = brother(pNode);
+                    }
+                    // 情况 4
+                    setColor(sib,getColor(parent(pNode)));
+                    setColor(parent(pNode),black);
+                    setColor(right(sib),black);
+                    l_rotation(parent(pNode));
+
+                    // 相当于两行代码 ：break ，将根节点染黑
+                    pNode = root;
+                }
+            } else {// 当前节点是父亲节点的右节点
+                TreeNode *sib = brother(pNode);
+                if (getColor(sib) == red) { // 想办法把兄弟节点变成黑色
+                    setColor(sib, black);
+                    setColor(parent(pNode), red);
+                    r_rotation(parent(pNode));
+                    sib = brother(pNode);
+                }
+
+                if (getColor(left(sib)) == black && getColor(right(sib)) == black) {
+                    setColor(sib, red);
+                    pNode = parent(pNode);
+                } else {
+                    // 情况 3  远侄子是 黑
+                    if (getColor(left(sib)) == black) {
+                        setColor(sib,red);
+                        setColor(right(sib),black);
+                        l_rotation(sib);
+                        sib = brother(pNode);
+                    }
+                    // 情况 4
+                    setColor(sib,getColor(parent(pNode)));
+                    setColor(parent(pNode),black);
+                    setColor(left(sib),black);
+                    r_rotation(parent(pNode));
+
+                    pNode = root;
+                }
+            }
+        }
+        // 当遇到一个红色节点，把红色节点染黑即可
+        pNode->color = black;
+    }
+
+    bool remove(K key) {
+        TreeNode *current = findTree(key);
+
+        if (current == NULL) {
+            return false;
+        }
+
+        if (current->left != NULL && current->right != NULL) {
+            TreeNode *successor = current->successor();
+            current->key = successor->key;
+            current->value = successor->value;
+            current = successor;
+        }
+        TreeNode *replace = current->left ? current->left : current->right;
+
+        if (replace != NULL) {
+            // 父亲  , current->parent 会不会有空的情况？
+            if(current->parent == NULL){ // 根节点
+                root = replace;
+            } else if (current->parent->left == current) {
+                current->parent->left = replace;
+            } else {
+                current->parent->right = replace;
+            }
+
+            replace->parent = current->parent;
+
+            if (current->color == black) {
+                solveLostBlack(replace);
+            }
+
+            delete (current);
+        } else if(current->parent == NULL){ // 删除根节点的情况
+            delete(root);
+            root = NULL;
+        } else {
+            // 为什么不先移除，是因为在修正的时候需要去获取叔叔和侄子节点来分情况判断
+            if (current->color == black) {
+                solveLostBlack(current);
+            }
+            // 再来移除
+            if (current->parent) {
+                if (current->parent->left == current) {
+                    current->parent->left = NULL;
+                } else {
+                    current->parent->right = NULL;
+                }
+            }
+            delete (current);
+        }
+
+        count--;
+        return true;
     }
 
     int size() {
