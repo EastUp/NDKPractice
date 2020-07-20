@@ -25,109 +25,108 @@ public:
 public:
     struct iterator;
 
-    TreeNode* parent(TreeNode* pNode){
+    TreeNode *parent(TreeNode *pNode) {
         return pNode ? pNode->parent : NULL;
     }
 
-    TreeNode* left(TreeNode* pNode){
+    TreeNode *left(TreeNode *pNode) {
         return pNode ? pNode->left : NULL;
     }
 
-    TreeNode* right(TreeNode* pNode){
+    TreeNode *right(TreeNode *pNode) {
         return pNode ? pNode->right : NULL;
     }
 
-    TreeNode* brother(TreeNode* pNode){
+    TreeNode *brother(TreeNode *pNode) {
         return left(parent(pNode)) == pNode ? right(parent(pNode)) : left(parent(pNode));
     }
 
-    rb_color getColor(TreeNode *pNode){
+    rb_color getColor(TreeNode *pNode) {
         return pNode ? pNode->color : black;
     }
 
-    void setColor(TreeNode *pNode,rb_color color){
-        if(pNode)
+    void setColor(TreeNode *pNode, rb_color color) {
+        if (pNode)
             pNode->color = color;
     }
 
     // 左旋
-    void l_rotation(TreeNode *pNode){
+    void l_rotation(TreeNode *pNode) {
         TreeNode *right = pNode->right;
         TreeNode *left = right->left;
         pNode->right = left;
         right->left = pNode;
 
         // 调整pNode 父亲指向
-        if(!parent(pNode)){
+        if (!parent(pNode)) {
             root = right;
-        }else if(pNode->parent->left == pNode){
+        } else if (pNode->parent->left == pNode) {
             parent(pNode)->left = right;
-        }else{
+        } else {
             parent(pNode)->right = right;
         }
 
         // 修改父亲
         right->parent = parent(pNode);
         pNode->parent = right;
-        if(left)
+        if (left)
             left->parent = pNode;
 
     }
 
     // 左旋
-    void r_rotation(TreeNode *pNode){
+    void r_rotation(TreeNode *pNode) {
         TreeNode *left = pNode->left;
         TreeNode *right = left->right;
         pNode->left = right;
         left->right = pNode;
 
         // 调整pNode 父亲指向
-        if(!parent(pNode)){
+        if (!parent(pNode)) {
             root = left;
-        }else if(pNode->parent->left == pNode){
+        } else if (pNode->parent->left == pNode) {
             parent(pNode)->left = left;
-        }else{
+        } else {
             parent(pNode)->right = left;
         }
 
         // 修改父亲
         left->parent = parent(pNode);
         pNode->parent = left;
-        if(right)
+        if (right)
             right->parent = pNode;
 
     }
 
 
-
     // 调整顺序
-    void solveDoubleRed(TreeNode *pNode){
-        while (pNode->parent && pNode->parent->color == red){ // 父亲是红色
-            if(getColor(brother(parent(pNode))) == red){ // 情况2：叔叔是红色的 ，将叔叔和父亲染黑，然后爷爷染红；
-                setColor(parent(pNode),black);
-                setColor(brother(parent(pNode)),black);
-                setColor(parent(parent(pNode)),red);
+    void solveDoubleRed(TreeNode *pNode) {
+        while (pNode->parent && pNode->parent->color == red) { // 父亲是红色
+            if (getColor(brother(parent(pNode))) == red) { // 情况2：叔叔是红色的 ，将叔叔和父亲染黑，然后爷爷染红；
+                setColor(parent(pNode), black);
+                setColor(brother(parent(pNode)), black);
+                setColor(parent(parent(pNode)), red);
                 pNode = parent(parent(pNode));
-            }else{ // 叔叔是黑色
-                if(left(parent(parent(pNode))) == parent(pNode)){
+            } else { // 叔叔是黑色
+                if (left(parent(parent(pNode))) == parent(pNode)) {
                     // 情况3：叔叔是黑色的，父亲是爷爷的左节点，且当前节点是其父节点的右孩子，将“父节点”作为“新的当前节点”，以“新的当前节点”为支点进行左旋。
-                    if(right(parent(pNode)) == pNode){
+                    if (right(parent(pNode)) == pNode) {
                         pNode = parent(pNode);
                         l_rotation(pNode);
                     }
                     // 情况4：叔叔是黑色的，父亲是爷爷的左节点，且当前节点是其父节点的左孩子，将“父节点”设为“黑色”，将“祖父节点”设为“红色”，以“祖父节点”为支点进行右旋；
-                    setColor(parent(pNode),black);
-                    setColor(parent(parent(pNode)),red);
+                    setColor(parent(pNode), black);
+                    setColor(parent(parent(pNode)), red);
                     r_rotation(parent(parent(pNode)));
-                }else{
+                } else {
                     // 情况3：叔叔是黑色的，父亲是爷爷的左节点，且当前节点是其父节点的右孩子，将“父节点”作为“新的当前节点”，以“新的当前节点”为支点进行左旋。
-                    if(left(parent(pNode)) == pNode){
+                    if (left(parent(pNode)) == pNode) {
                         pNode = parent(pNode);
                         r_rotation(pNode);
                     }
                     // 情况4：叔叔是黑色的，父亲是爷爷的左节点，且当前节点是其父节点的左孩子，将“父节点”设为“黑色”，将“祖父节点”设为“红色”，以“祖父节点”为支点进行右旋；
-                    setColor(parent(pNode),black);
-                    setColor(parent(parent(pNode)),red);
+                    setColor(parent(pNode), black);
+                    setColor(parent(parent(pNode)), red);
                     l_rotation(parent(parent(pNode)));
                 }
             }
@@ -138,8 +137,8 @@ public:
 
 
     iterator insert(K key, V value) {
-        if(!root){
-            root = new TreeNode(NULL,NULL,NULL,key,value,black);
+        if (!root) {
+            root = new TreeNode(NULL, NULL, NULL, key, value, black);
             count = 1;
             return iterator(root);
         }
@@ -147,21 +146,21 @@ public:
         // 最好我们插入红色节点，它不会违反性质 5 ，但是有可能违反性质 4
         TreeNode *node = root;
         TreeNode *parent = NULL;
-        while(node){
+        while (node) {
             parent = node;
-            if(node->key > key)
+            if (node->key > key)
                 node = node->left;
-            else if(node->key < key)
+            else if (node->key < key)
                 node = node->right;
-            else{
+            else {
                 node->value = value;
                 return iterator(node);
             }
         }
 
-        TreeNode *new_node = new TreeNode(NULL,NULL,parent,key,value,red);
+        TreeNode *new_node = new TreeNode(NULL, NULL, parent, key, value, red);
 
-        if(key < parent->key)
+        if (key < parent->key)
             parent->left = new_node;
         else
             parent->right = new_node;
@@ -197,7 +196,7 @@ public:
                 if (getColor(sib) == red) { // 想办法把兄弟节点变成黑色  情况 1
                     setColor(sib, black);
                     setColor(parent(pNode), red);
-                     l_rotation(parent(pNode));
+                    l_rotation(parent(pNode));
                     sib = brother(pNode);
                 }
                 if (getColor(left(sib)) == black && getColor(right(sib)) == black) { // 情况2
@@ -206,15 +205,15 @@ public:
                 } else {
                     // 情况 3
                     if (getColor(right(sib)) == black) {
-                        setColor(sib,red);
-                        setColor(left(sib),black);
+                        setColor(sib, red);
+                        setColor(left(sib), black);
                         r_rotation(sib);
                         sib = brother(pNode);
                     }
                     // 情况 4
-                    setColor(sib,getColor(parent(pNode)));
-                    setColor(parent(pNode),black);
-                    setColor(right(sib),black);
+                    setColor(sib, getColor(parent(pNode)));
+                    setColor(parent(pNode), black);
+                    setColor(right(sib), black);
                     l_rotation(parent(pNode));
 
                     // 相当于两行代码 ：break ，将根节点染黑
@@ -235,15 +234,15 @@ public:
                 } else {
                     // 情况 3  远侄子是 黑
                     if (getColor(left(sib)) == black) {
-                        setColor(sib,red);
-                        setColor(right(sib),black);
+                        setColor(sib, red);
+                        setColor(right(sib), black);
                         l_rotation(sib);
                         sib = brother(pNode);
                     }
                     // 情况 4
-                    setColor(sib,getColor(parent(pNode)));
-                    setColor(parent(pNode),black);
-                    setColor(left(sib),black);
+                    setColor(sib, getColor(parent(pNode)));
+                    setColor(parent(pNode), black);
+                    setColor(left(sib), black);
                     r_rotation(parent(pNode));
 
                     pNode = root;
@@ -271,7 +270,7 @@ public:
 
         if (replace != NULL) {
             // 父亲  , current->parent 会不会有空的情况？
-            if(current->parent == NULL){ // 根节点
+            if (current->parent == NULL) { // 根节点
                 root = replace;
             } else if (current->parent->left == current) {
                 current->parent->left = replace;
@@ -286,8 +285,8 @@ public:
             }
 
             delete (current);
-        } else if(current->parent == NULL){ // 删除根节点的情况
-            delete(root);
+        } else if (current->parent == NULL) { // 删除根节点的情况
+            delete (root);
             root = NULL;
         } else {
             // 为什么不先移除，是因为在修正的时候需要去获取叔叔和侄子节点来分情况判断
@@ -371,9 +370,9 @@ public:
                 } else {
                     TreeNode *myp = this;
                     while (myp) {
-                        if(myp->parent->left = myp)// 在左子树
+                        if (myp->parent->left = myp)// 在左子树
                             myp = myp->parent;
-                        else{ // 在根节点的右子树中
+                        else { // 在根节点的右子树中
                             return myp->parent;
                         }
                     }
@@ -402,9 +401,9 @@ public:
                 } else {
                     TreeNode *myp = this;
                     while (myp) {
-                        if(myp->parent->right = myp)// 在右子树
+                        if (myp->parent->right = myp)// 在右子树
                             myp = myp->parent;
-                        else{ // 在根节点的左子树中
+                        else { // 在根节点的左子树中
                             return myp->parent;
                         }
                     }
