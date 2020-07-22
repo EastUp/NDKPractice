@@ -13,7 +13,7 @@ import java.util.ArrayDeque;
  * |---------------------------------------------------------------------------------------------------------------|
  */
 public class Graph {
-    public final static int MAX_WEIGHT = Integer.MAX_VALUE;
+    public final static int MAX_WEIGHT = 65535;
     // 顶点的个数
     int vertexSize;
 
@@ -60,7 +60,7 @@ public class Graph {
         }
     }
 
-    // 最小生成树
+    // 最小生成树（普里姆算法）
     public void prim(){
         // 定义一个数组内存，当前修好村庄，lowcost = 0 代表已经修了
         int[] lowcost = new int[vertexSize];
@@ -105,6 +105,50 @@ public class Graph {
         }
 
         Log.e("TAG","最短路径是：" + sum);
+
+    }
+
+    // 生成最短路径（迪杰斯特拉算法）
+    public void dijstra() {
+        // 有没找到最短路径
+        boolean[] isPath = new boolean[vertexSize];
+        // 存放每个村庄的最短路径
+        int[] shortPath = new int[vertexSize];
+
+        for (int i = 0; i <vertexSize; i++) {
+            shortPath[i] = matrix[0][i];
+        }
+
+        shortPath[0] = 0;
+        isPath[0] = true;
+
+        for (int i = 1; i < vertexSize; i++) { // 外循环每次找到下一个村庄最短的路径
+            int minId = 0;
+            int min = MAX_WEIGHT;
+            for (int j = 1; j < vertexSize; j++) {
+                if(shortPath[j] < min && !isPath[j]){
+                    min = shortPath[j];   // 1 4
+                    minId = j;            // 1 2
+                }
+            }
+
+            isPath[minId] = true; // 已经找到了最短的路径
+
+            for (int k = 0; k < vertexSize; k++) {
+                if(!isPath[k] && (matrix[minId][k] + min) < shortPath[k]){
+                    shortPath[k] = matrix[minId][k] + min;
+                }
+            }
+
+            for (int k = 0; k < vertexSize; k++) {
+                Log.e("TAG", shortPath[k]+" ");
+            }
+            Log.e("TAG", "===================");
+        }
+
+        for (int i = 0; i < vertexSize; i++) {
+            Log.e("TAG", "顶点 0 到顶点 " + i + " 的最短距离为：" + shortPath[i]);
+        }
 
     }
 }

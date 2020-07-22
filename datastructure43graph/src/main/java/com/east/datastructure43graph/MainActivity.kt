@@ -327,9 +327,11 @@ class MainActivity : AppCompatActivity() {
         // 广度遍历
 //        graph.breadthFirstSearch()
 
-        // 最小生成树
-        graph.prim()
+        // 最小生成树（普里姆算法）
+//        graph.prim()
 
+        // 最短路径(迪杰斯特拉算法)
+        graph.dijstra()
     }
 
     external fun stringFromJNI():String
