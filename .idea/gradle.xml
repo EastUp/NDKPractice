@@ -29,6 +29,7 @@
             <option value="$PROJECT_DIR$/ndk02ffmpegvideocompress" />
             <option value="$PROJECT_DIR$/ndk03opencvfacedetection" />
             <option value="$PROJECT_DIR$/ndk31opencvbankocr" />
+            <option value="$PROJECT_DIR$/opencv49androidfiltereffects" />
           </set>
         </option>
         <option name="resolveModulePerSourceSet" value="false" />
