@@ -30,6 +30,7 @@
             <option value="$PROJECT_DIR$/ndk03opencvfacedetection" />
             <option value="$PROJECT_DIR$/ndk31opencvbankocr" />
             <option value="$PROJECT_DIR$/opencv49androidfiltereffects" />
+            <option value="$PROJECT_DIR$/opencv62" />
           </set>
         </option>
         <option name="resolveModulePerSourceSet" value="false" />

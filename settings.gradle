@@ -1,3 +1,4 @@
+include ':opencv62'
 include ':opencv49androidfiltereffects'
 include ':datastructure43graph'
 include ':datastructure42huffman'
