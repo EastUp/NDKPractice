@@ -17,10 +17,23 @@ public class OpenCvUtils {
 
     /**
      * 图片旋转 90 度
-     *
-     * @param bitmap
-     * @return
      */
     public static native Bitmap rotation(Bitmap bitmap);
+
+    /**
+     *  图片仿射变换
+     */
+    public static native Bitmap warpAffine(Bitmap bitmap);
+
+
+    /**
+     * 图片缩放
+     */
+    public static native Bitmap resize(Bitmap bitmap,int width,int height);
+
+    /**
+     *  手写 Remap 重映射
+     */
+    public static native Bitmap reMap(Bitmap bitmap);
 
 }
