@@ -9,8 +9,7 @@
 ###  1.1 `ndk-stack` 调试
 
 条件：配置 `adb` 和 `ndk` 的环境变量.  
-命令：`adb logcat | ndk-stack -sym E:\AndroidStudioProjects\MyBintrayLib\NDKPractice\datastructure28bubbkeselectsort\build\intermediates\cmake\debu
-g\obj\arm64-v8a` // 路径为有.so库的路径
+命令：`adb logcat | ndk-stack -sym E:\AndroidStudioProjects\MyBintrayLib\NDKPractice\datastructure28bubbkeselectsort\build\intermediates\cmake\debug\obj\arm64-v8a` // 路径为有.so库的路径
 
 如果出现：`'ndk-stack' 不是内部或外部命令，也不是可运行的程序`,则需要去ndk 目录下点击 `ndk-gdb.cmd`,再关闭程序重新打开尝试
 

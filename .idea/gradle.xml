@@ -31,6 +31,7 @@
             <option value="$PROJECT_DIR$/ndk31opencvbankocr" />
             <option value="$PROJECT_DIR$/opencv49androidfiltereffects" />
             <option value="$PROJECT_DIR$/opencv62" />
+            <option value="$PROJECT_DIR$/opencv63" />
           </set>
         </option>
         <option name="resolveModulePerSourceSet" value="false" />

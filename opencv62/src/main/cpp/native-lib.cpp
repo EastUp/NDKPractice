@@ -65,6 +65,8 @@ Java_com_east_opencv62_NDKBitmapUtils_anaglyph(JNIEnv *env, jclass clazz, jobjec
     Mat src;
     cv_helper::bitmap2mat(env, bitmap, src);
     Mat res(src.size(), src.type());
+    src.copyTo(res);
+
     // 获取图片宽高
     int src_w = src.cols; // 图片的宽
     int src_h = src.rows; // 图片的高
@@ -93,8 +95,10 @@ Java_com_east_opencv62_NDKBitmapUtils_anaglyph(JNIEnv *env, jclass clazz, jobjec
         }
     }
 
-    cv_helper::mat2bitmap(env, res, bitmap);
-    return bitmap;
+    jobject newBitmap = cv_helper::createBitmap(env, res.cols, res.rows, res.type());
+
+    cv_helper::mat2bitmap(env, res, newBitmap);
+    return newBitmap;
 }
 
 
@@ -160,17 +164,17 @@ Java_com_east_opencv62_NDKBitmapUtils_groundGlass(JNIEnv *env, jclass clazz, job
     RNG rng(time(NULL));
     for (int row = 0; row < src_h; ++row) {
         for (int col = 0; col < src_w; ++col) {
-            int random = rng.uniform(0, size+1);
-            if(row+random >= src_h){
-                if(col + random >= src_w){
+            int random = rng.uniform(0, size + 1);
+            if (row + random >= src_h) {
+                if (col + random >= src_w) {
                     src.at<int>(row, col) = src.at<int>(row - random, col - random);
-                }else{
+                } else {
                     src.at<int>(row, col) = src.at<int>(row - random, col + random);
                 }
-            }else{
-                if(col + random >= src_w){
+            } else {
+                if (col + random >= src_w) {
                     src.at<int>(row, col) = src.at<int>(row + random, col - random);
-                }else{
+                } else {
                     src.at<int>(row, col) = src.at<int>(row + random, col + random);
                 }
             }
@@ -200,41 +204,57 @@ Java_com_east_opencv62_NDKBitmapUtils_oilPainting(JNIEnv *env, jclass clazz, job
     Mat src;
     cv_helper::bitmap2mat(env, bitmap, src);
     Mat gray;
-    cvtColor(src,gray,COLOR_BGRA2GRAY);
-    Mat res(src.size(),src.type());
+    cvtColor(src, gray, COLOR_BGRA2GRAY);
+    Mat res(src.size(), src.type());
 
     int src_w = src.cols; // 图片的宽
     int src_h = src.rows; // 图片的高
-    int size = 15;
+    int size = 15; // 15 * 15的矩阵
+    int size_row = 15;
+    int size_col = 15;
     // 知识不是用来背的 20% ，用来唤醒大家的
-    for (int row = 0; row < src_h - size; ++row) {
-        for (int col = 0; col < src_w - size; ++col) {
+    for (int row = 0; row < src_h; ++row) {
+        for (int col = 0; col < src_w; ++col) {
             int g[20] = {0}, b_g[20] = {0}, g_g[20] = {0}, r_g[20] = {0};// 255/8
             // 这个位置  64 循环 -> 1 个像素点 ， 高斯模糊 ，想想怎么优化
-            for (int o_rows = 0; o_rows < size; ++o_rows) {
-                for (int o_cols = 0; o_cols < size; ++o_cols) {
-                    uchar gery = gray.at<uchar>(row + o_rows,col + o_cols);
+            for (int o_rows = 0; o_rows < size_row; ++o_rows) {
+                for (int o_cols = 0; o_cols < size_col; ++o_cols) {
+                    uchar gery = 0;
+                    if (row + o_rows >= src_h) {
+                        if (col + o_cols >= src_w) {
+                            gery = gray.at<uchar>(2*src_h - row - o_rows, 2*src_w - col - o_cols);
+                        }else{
+                            gery = gray.at<uchar>(2*src_h - row - o_rows, col + o_cols);
+                        }
+                    }else{
+                        if (col + o_cols >= src_w) {
+                            gery = gray.at<uchar>(row + o_rows, 2*src_w - col - o_cols);
+                        }else{
+                            gery = gray.at<uchar>(row + o_rows, col + o_cols);
+                        }
+                    }
                     uchar index = gery / (255 / (size - 1)); // 254*7/254
                     g[index] += 1;
                     // 等级的像素之和
-                    b_g[index] += src.at<Vec4b>(row + o_rows,col + o_cols)[0];
-                    g_g[index] += src.at<Vec4b>(row + o_rows,col + o_cols)[1];
-                    r_g[index] += src.at<Vec4b>(row + o_rows,col + o_cols)[2];
+                    b_g[index] += src.at<Vec4b>(row + o_rows, col + o_cols)[0];
+                    g_g[index] += src.at<Vec4b>(row + o_rows, col + o_cols)[1];
+                    r_g[index] += src.at<Vec4b>(row + o_rows, col + o_cols)[2];
+
                 }
             }
             // 最大的角标找出来
             int max_index = 0;
             int max = g[0];
             for (int i = 1; i < size; ++i) {
-                if(g[max_index] < g[i]){
+                if (g[max_index] < g[i]) {
                     max_index = i;
                     max = g[i];
                 }
             }
             // 会超过 255，超过了的话 会截取最高位
-            res.at<Vec4b>(row,col)[0] = b_g[max_index] / max;
-            res.at<Vec4b>(row,col)[1] = g_g[max_index] / max;
-            res.at<Vec4b>(row,col)[2] = r_g[max_index] / max;
+            res.at<Vec4b>(row, col)[0] = b_g[max_index] / max;
+            res.at<Vec4b>(row, col)[1] = g_g[max_index] / max;
+            res.at<Vec4b>(row, col)[2] = r_g[max_index] / max;
         }
     }
     cv_helper::mat2bitmap(env, res, bitmap);
