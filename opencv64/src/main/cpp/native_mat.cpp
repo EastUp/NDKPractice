@@ -40,4 +40,11 @@ Java_com_east_opencv64_opencv2_Mat_nPutF(JNIEnv *env, jobject thiz,jlong ptr,jin
     mat->at<float>(row,col) = value;
 }
 
+extern "C"
+JNIEXPORT void JNICALL
+Java_com_east_opencv64_opencv2_Mat_nDelete(JNIEnv *env, jobject thiz,jlong ptr) {
+    Mat *mat = reinterpret_cast<Mat*>(ptr);
+    delete(mat);
+}
+
 #endif //NDKPRACTICE_NATIVE_MAT

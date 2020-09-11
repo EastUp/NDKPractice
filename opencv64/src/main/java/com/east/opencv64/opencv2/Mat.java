@@ -41,4 +41,12 @@ public class Mat {
     private native long nMat();
 
     private native void nPutF(long nativePtr,int row, int col, float value);
+
+    private native void nDelete(long nativePtr);
+
+    @Override
+    protected void finalize() throws Throwable {
+        super.finalize();
+        nDelete(mNativePtr);
+    }
 }
