@@ -1,3 +1,4 @@
+include ':opencv64'
 include ':opencv63'
 include ':opencv62'
 include ':opencv49androidfiltereffects'

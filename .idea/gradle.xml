@@ -32,6 +32,7 @@
             <option value="$PROJECT_DIR$/opencv49androidfiltereffects" />
             <option value="$PROJECT_DIR$/opencv62" />
             <option value="$PROJECT_DIR$/opencv63" />
+            <option value="$PROJECT_DIR$/opencv64" />
           </set>
         </option>
         <option name="resolveModulePerSourceSet" value="false" />
