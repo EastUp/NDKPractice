@@ -33,6 +33,7 @@
             <option value="$PROJECT_DIR$/opencv62" />
             <option value="$PROJECT_DIR$/opencv63" />
             <option value="$PROJECT_DIR$/opencv64" />
+            <option value="$PROJECT_DIR$/opencv69" />
           </set>
         </option>
         <option name="resolveModulePerSourceSet" value="false" />
