@@ -1,3 +1,4 @@
+include ':opencv70'
 include ':opencv69'
 include ':opencv64'
 include ':opencv63'
