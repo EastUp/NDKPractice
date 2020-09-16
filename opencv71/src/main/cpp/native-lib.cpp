@@ -92,7 +92,7 @@ Java_com_east_opencv71_FaceDetection_trainingPattern(JNIEnv *env, jobject instan
     vector<Mat> faces;
     vector<int> labels;
 
-    // 样本比较少
+    // 样本比较少(orl_faces.rar 中有样本)
     for (int i = 1; i <= 5; ++i) {
         for (int j = 1; j <= 5; ++j) {
             Mat face = imread(format("/storage/emulated/0/s%d/%d.pgm", i, j), 0);
