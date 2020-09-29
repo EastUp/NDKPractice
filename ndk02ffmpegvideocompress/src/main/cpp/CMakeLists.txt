@@ -16,27 +16,38 @@ set(ffmpeg_lib_dir ${CMAKE_SOURCE_DIR}/ffmpeg/armeabi-v7a)
 set(ffmpeg_head_dir ${CMAKE_SOURCE_DIR}/ffmpeg)
 
 # 2. 添加头文件目录
-include_directories(${ffmpeg_head_dir}/include)
+include_directories(${ffmpeg_head_dir}/include ${ffmpeg_head_dir}/other)
 
 # 3. 添加ffmpeg相关的so库
 
+
+
 set(
         # List variable name
-        ffmpeg_libs_names
+        ffmpeg_libs_names_version
         # Values in the list
-        avutil swresample swscale avcodec avformat avfilter avdevice)
+        avutil-54 swresample-1 swscale-3 avcodec-56 postproc-53  avformat-56 avfilter-5 avdevice-56)
 
-foreach (ffmpeg_lib_name  ${ffmpeg_libs_names})
-    add_library(
-            ${ffmpeg_lib_name}
-            SHARED
-            IMPORTED)
-    set_target_properties(
-            ${ffmpeg_lib_name}
-            PROPERTIES
-            IMPORTED_LOCATION
-            ${ffmpeg_lib_dir}/lib${ffmpeg_lib_name}.so)
-endforeach ()
+link_directories(${ffmpeg_lib_dir})
+
+
+#set(
+#        # List variable name
+#        ffmpeg_libs_names
+#        # Values in the list
+#        avutil swresample swscale avcodec avformat avfilter avdevice)
+
+#foreach (ffmpeg_lib_name  ${ffmpeg_libs_names})
+#    add_library(
+#            ${ffmpeg_lib_name}
+#            SHARED
+#            IMPORTED)
+#    set_target_properties(
+#            ${ffmpeg_lib_name}
+#            PROPERTIES
+#            IMPORTED_LOCATION
+#            ${ffmpeg_lib_dir}/lib${ffmpeg_lib_name}.so)
+#endforeach ()
 
 # 查找代码中使用到的系统库
 find_library( # Sets the name of the path variable.
@@ -55,6 +66,11 @@ add_library( # Sets the name of the library.
 
         # Provides a relative path to your source file(s).
         native-lib.cpp
+        # 编译额外的 C 文件
+        ffmpeg_filter.c
+        ffmpeg_mod.c
+        ffmpeg_opt.c
+        cmdutils.c
         )
 
 # 指定编译目标库时，cmake要链接的库
@@ -64,7 +80,8 @@ target_link_libraries(
         native-lib
 
         # 4. 连接 FFmpeg 相关的库
-        ${ffmpeg_libs_names}
+#        ${ffmpeg_libs_names}
+        ${ffmpeg_libs_names_version}
 
         # Links the target library to the log library
         # included in the NDK.

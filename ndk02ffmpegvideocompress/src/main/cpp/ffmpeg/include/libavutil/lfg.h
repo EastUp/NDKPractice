@@ -22,14 +22,6 @@
 #ifndef AVUTIL_LFG_H
 #define AVUTIL_LFG_H
 
-#include <stdint.h>
-
-/**
- * Context structure for the Lagged Fibonacci PRNG.
- * The exact layout, types and content of this struct may change and should
- * not be accessed directly. Only its sizeof() is guranteed to stay the same
- * to allow easy instanciation.
- */
 typedef struct AVLFG {
     unsigned int state[64];
     int index;
@@ -38,22 +30,14 @@ typedef struct AVLFG {
 void av_lfg_init(AVLFG *c, unsigned int seed);
 
 /**
- * Seed the state of the ALFG using binary data.
- *
- * Return value: 0 on success, negative value (AVERROR) on failure.
- */
-int av_lfg_init_from_data(AVLFG *c, const uint8_t *data, unsigned int length);
-
-/**
  * Get the next random unsigned 32-bit number using an ALFG.
  *
  * Please also consider a simple LCG like state= state*1664525+1013904223,
  * it may be good enough and faster for your specific use case.
  */
 static inline unsigned int av_lfg_get(AVLFG *c){
-    unsigned a = c->state[c->index & 63] = c->state[(c->index-24) & 63] + c->state[(c->index-55) & 63];
-    c->index += 1U;
-    return a;
+    c->state[c->index & 63] = c->state[(c->index-24) & 63] + c->state[(c->index-55) & 63];
+    return c->state[c->index++ & 63];
 }
 
 /**
@@ -64,9 +48,7 @@ static inline unsigned int av_lfg_get(AVLFG *c){
 static inline unsigned int av_mlfg_get(AVLFG *c){
     unsigned int a= c->state[(c->index-55) & 63];
     unsigned int b= c->state[(c->index-24) & 63];
-    a = c->state[c->index & 63] = 2*a*b+a+b;
-    c->index += 1U;
-    return a;
+    return c->state[c->index++ & 63] = 2*a*b+a+b;
 }
 
 /**
