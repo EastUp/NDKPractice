@@ -2,7 +2,11 @@
 #include <string>
 #include <malloc.h>
 #include <android/log.h>
-#include <libavutil/avutil.h>
+
+extern "C"{
+    #include <libavutil/avutil.h>
+}
+
 
 #define TAG "JNI_TAG"
 #define LOGE(...) __android_log_print(ANDROID_LOG_ERROR,TAG,__VA_ARGS__)
@@ -16,6 +20,7 @@ int ffmpegmain(int argc, char **argv,void(call_back)(int,int));
 // 回调函数
 static jobject call_back_jobj;
 static JNIEnv *mEnv;
+extern "C"
 void call_back(int current,int total){
     // LOGE("压缩进度：%d/%d",current,total);
     // 把进度回调出去 对象是 jobject callback
@@ -48,7 +53,12 @@ Java_com_east_ndk02ffmpegvideocompress_VideoCompress_compressVideo(JNIEnv *env, 
         LOGE("参数：%s",argv[i]);
     }
     // 3. 调用命令函数去压缩，回调处理
-    ffmpegmain(argc,argv,call_back);
+    int result = ffmpegmain(argc,argv,call_back);
+    if(result!=0){
+        LOGE("压缩失败result：%d",result);
+        jclass run_clz = env->FindClass("java/lang/RuntimeException");
+        env->ThrowNew(run_clz,"压缩失败");
+    }
 
     // 4. 释放内存
     for (int i = 0; i < argc; ++i) {

@@ -42,7 +42,7 @@ class MainActivity : AppCompatActivity() {
             }
         })
 
-        tv.text = stringFromJNI()
+        tv.text = "avutil的版本号为：${stringFromJNI()}"
     }
 
     fun compressVideo(view: View) {
@@ -56,9 +56,13 @@ class MainActivity : AppCompatActivity() {
         Observable.just(compressCommand).map {
             // 压缩是耗时的，子线程，处理权限
             val videoCompress = VideoCompress()
-            videoCompress.compressVideo(
-                it
-            ) { current, total -> Log.e("TAG", "压缩进度：$current/$total") }
+            try {
+                videoCompress.compressVideo(
+                    it
+                ) { current, total -> Log.e("TAG", "压缩进度：$current/$total") }
+            } catch (e: Exception) {
+                Log.e("TAG",e.toString())
+            }
             mOutFile
         }.subscribeOn(Schedulers.io())
             .observeOn(AndroidSchedulers.mainThread())
