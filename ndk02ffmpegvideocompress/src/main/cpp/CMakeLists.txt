@@ -21,35 +21,16 @@ include_directories(${ffmpeg_head_dir}/include ${ffmpeg_head_dir}/other)
 
 
 
-set(
-        # List variable name
-        ffmpeg_libs_names_version
-        # Values in the list
-        avutil-54 swresample-1 swscale-3 avcodec-56 postproc-53  avformat-56 avfilter-5 avdevice-56)
-
-# 这个外部动态库的链接为什么没用,官网不推荐使用
-#link_directories(${ffmpeg_lib_dir})
-
-foreach (ffmpeg_lib_name  ${ffmpeg_libs_names_version})
-    add_library(
-            ${ffmpeg_lib_name}
-            SHARED
-            IMPORTED)
-    set_target_properties(
-            ${ffmpeg_lib_name}
-            PROPERTIES
-            IMPORTED_LOCATION
-            ${ffmpeg_lib_dir}/lib${ffmpeg_lib_name}.so)
-endforeach ()
-
-
 #set(
 #        # List variable name
-#        ffmpeg_libs_names
+#        ffmpeg_libs_names_version
 #        # Values in the list
-#        avutil swresample swscale avcodec avformat avfilter avdevice)
-
-#foreach (ffmpeg_lib_name  ${ffmpeg_libs_names})
+#        avutil-54 swresample-1 swscale-3 avcodec-56 postproc-53  avformat-56 avfilter-5 avdevice-56)
+#
+## 这个外部动态库的链接为什么没用,官网不推荐使用
+##link_directories(${ffmpeg_lib_dir})
+#
+#foreach (ffmpeg_lib_name  ${ffmpeg_libs_names_version})
 #    add_library(
 #            ${ffmpeg_lib_name}
 #            SHARED
@@ -61,6 +42,25 @@ endforeach ()
 #            ${ffmpeg_lib_dir}/lib${ffmpeg_lib_name}.so)
 #endforeach ()
 
+
+set(
+        # List variable name
+        ffmpeg_libs_names
+        # Values in the list
+        avutil swresample swscale avcodec postproc avformat avfilter avdevice avresample)
+
+foreach (ffmpeg_lib_name  ${ffmpeg_libs_names})
+    add_library(
+            ${ffmpeg_lib_name}
+            SHARED
+            IMPORTED)
+    set_target_properties(
+            ${ffmpeg_lib_name}
+            PROPERTIES
+            IMPORTED_LOCATION
+            ${ffmpeg_lib_dir}/lib${ffmpeg_lib_name}.so)
+endforeach ()
+
 # 查找代码中使用到的系统库
 find_library( # Sets the name of the path variable.
         log-lib
@@ -71,29 +71,31 @@ find_library( # Sets the name of the path variable.
 
 # 配置目标so库编译信息
 add_library( # Sets the name of the library.
-        native-lib
+        ffmpeg-lib
 
         # Sets the library as a shared library.
         SHARED
 
         # Provides a relative path to your source file(s).
-        native-lib.cpp
+        ffmpeg_lib.c
         # 编译额外的 C 文件
-        ffmpeg_filter.c
-        ffmpeg_mod.c
-        ffmpeg_opt.c
         cmdutils.c
+        ffmpeg.c
+        ffmpeg_filter.c
+        ffmpeg_opt.c
+        ffmpeg_thread.c
+        ffmpeg_hw.c
         )
 
 # 指定编译目标库时，cmake要链接的库
 target_link_libraries(
 
         # 指定目标库，native-lib 是在上面 add_library 中配置的目标库
-        native-lib
+        ffmpeg-lib
 
         # 4. 连接 FFmpeg 相关的库
-#        ${ffmpeg_libs_names}
-        ${ffmpeg_libs_names_version}
+        ${ffmpeg_libs_names}
+#        ${ffmpeg_libs_names_version}
 #        # 编解码(最重要的库)
 #        avcodec-56
 #        # 设备信息
