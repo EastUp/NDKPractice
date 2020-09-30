@@ -11,11 +11,9 @@ cmake_minimum_required(VERSION 3.4.1)
 #FFmpeg配置目录
 # 1. 定义so库和头文件所在目录，方面后面使用
 #set(ffmpeg_lib_dir ${CMAKE_SOURCE_DIR}/ffmpeg/${ANDROID_ABI})
-set(ffmpeg_lib_dir ${CMAKE_SOURCE_DIR}/ffmpeg/armeabi-v7a)
-set(ffmpeg_head_dir ${CMAKE_SOURCE_DIR}/ffmpeg)
 
 # 2. 添加头文件目录
-include_directories(${ffmpeg_head_dir}/include ${ffmpeg_head_dir}/other)
+include_directories(${CMAKE_SOURCE_DIR}/../jniLibs/include ${CMAKE_SOURCE_DIR}/../jniLibs/other)
 
 # 3. 添加ffmpeg相关的so库
 
@@ -49,17 +47,20 @@ set(
         # Values in the list
         avutil swresample swscale avcodec postproc avformat avfilter avdevice avresample)
 
-foreach (ffmpeg_lib_name  ${ffmpeg_libs_names})
-    add_library(
-            ${ffmpeg_lib_name}
-            SHARED
-            IMPORTED)
-    set_target_properties(
-            ${ffmpeg_lib_name}
-            PROPERTIES
-            IMPORTED_LOCATION
-            ${ffmpeg_lib_dir}/lib${ffmpeg_lib_name}.so)
-endforeach ()
+## 这个外部动态库的链接为什么没用,官网不推荐使用
+link_directories(${CMAKE_SOURCE_DIR}/../jniLibs/armeabi-v7a)
+
+#foreach (ffmpeg_lib_name  ${ffmpeg_libs_names})
+#    add_library(
+#            ${ffmpeg_lib_name}
+#            SHARED
+#            IMPORTED)
+#    set_target_properties(
+#            ${ffmpeg_lib_name}
+#            PROPERTIES
+#            IMPORTED_LOCATION
+#            ${ffmpeg_lib_dir}/lib${ffmpeg_lib_name}.so)
+#endforeach ()
 
 # 查找代码中使用到的系统库
 find_library( # Sets the name of the path variable.

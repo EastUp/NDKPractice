@@ -1,3 +1,4 @@
+include ':ffmpeg83'
 include ':opencv71'
 include ':opencv70'
 include ':opencv69'
