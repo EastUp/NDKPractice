@@ -35,12 +35,13 @@ find_library( # Sets the name of the path variable.
 
 # 配置目标so库编译信息
 add_library( # Sets the name of the library.
-        native-lib
+        music-player
 
         # Sets the library as a shared library.
         SHARED
 
         # Provides a relative path to your source file(s).
+        FFmpeg.cpp
         ${SRC_LIST}
         )
 
@@ -48,7 +49,7 @@ add_library( # Sets the name of the library.
 target_link_libraries(
 
         # 指定目标库，native-lib 是在上面 add_library 中配置的目标库
-        native-lib
+        music-player
 
         # 4. 连接 FFmpeg 相关的库
         ${ffmpeg_libs_names}
