@@ -8,6 +8,7 @@ import androidx.appcompat.app.AppCompatActivity
 import com.east.ffmpeg83.R
 import com.east.ffmpeg83.media.JaminPlayer
 import com.east.ffmpeg83.media.listener.MediaErrorListener
+import com.east.ffmpeg83.media.listener.MediaPreparedListener
 import com.east.permission.PermissionCheckUtils
 import com.east.permission.PermissionListener
 import java.io.File
@@ -39,7 +40,7 @@ class MainActivity : AppCompatActivity() {
         setContentView(R.layout.activity_main)
 
         if(PermissionCheckUtils.checkeHasPermission(this, permissions)){
-            Log.e("TAG",mMusicFile.absolutePath)
+            Log.e("TAG", mMusicFile.absolutePath)
             mPlayer.setDataSource(mMusicFile.absolutePath)
 
             mPlayer.setOnErrorListener(object : MediaErrorListener {
@@ -49,7 +50,13 @@ class MainActivity : AppCompatActivity() {
                 }
             })
 
-            mPlayer.play()
+            mPlayer.setOnPreParedListener(object : MediaPreparedListener {
+                override fun onPrepared() {
+                    Log.e("TAG", "准备完毕")
+                    mPlayer.play()
+                }
+            })
+            mPlayer.prepareAsync()
         }else{
             PermissionCheckUtils.checkPermission(this, permissions, object : PermissionListener {
                 override fun onGranted() {

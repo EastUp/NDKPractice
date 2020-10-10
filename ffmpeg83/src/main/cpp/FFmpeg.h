@@ -7,6 +7,7 @@
 
 #include "JNICall.h"
 #include <pthread.h>
+#include "Audio.h"
 
 // 在 c++ 中采用 c 的这种编译方式
 extern "C"{
@@ -20,8 +21,9 @@ public:
     AVCodecContext *pCodecContext = NULL;
     SwrContext *swrContext = NULL;
     uint8_t *resampleOutBuffer = NULL;
-    const char* url = NULL;
+    char* url = NULL;
     JNICall *pJniCall = NULL;
+    Audio *pAudio = NULL;
 
 public:
     FFmpeg(JNICall *pJniCall,const char *url);
@@ -34,7 +36,11 @@ public:
 
     void prepareAsync();
 
-    void callPlayerJniError(int code,char *msg);
+    void prepareAudioTrack(ThreadMode threadMode);
+
+    void prepareOpenSLES(ThreadMode threadMode);
+
+    void callPlayerJniError(ThreadMode threadMode,int code,char *msg);
 
     void release();
 };

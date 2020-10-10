@@ -42,6 +42,7 @@ add_library( # Sets the name of the library.
 
         # Provides a relative path to your source file(s).
         FFmpeg.cpp
+        Audio.cpp
         ${SRC_LIST}
         )
 
@@ -55,6 +56,7 @@ target_link_libraries(
         ${ffmpeg_libs_names}
         # 链接 android ndk 自带的一些库
         android
+        # 链接OpenSLES
         OpenSLES
         # Links the target library to the log library
         # included in the NDK.
