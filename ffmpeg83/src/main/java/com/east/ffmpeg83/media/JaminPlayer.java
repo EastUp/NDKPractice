@@ -69,6 +69,9 @@ public class JaminPlayer {
 
     private native void nPrepare(String url);
 
+    /**
+     *  异步准备
+     */
     public void prepareAsync() {
         if (TextUtils.isEmpty(url)) {
             throw new NullPointerException("url is null, please call method setDataSource");

@@ -41,8 +41,7 @@ add_library( # Sets the name of the library.
         SHARED
 
         # Provides a relative path to your source file(s).
-        FFmpeg.cpp
-        Audio.cpp
+        # 新建的cpp 文件，需要先在这下面写上，让编译器编译完了记住了才可以删除。
         ${SRC_LIST}
         )
 

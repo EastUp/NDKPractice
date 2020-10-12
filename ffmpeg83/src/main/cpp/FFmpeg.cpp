@@ -15,6 +15,9 @@ FFmpeg::FFmpeg(JNICall *pJniCall, const char *url) {
 
 FFmpeg::~FFmpeg() {
     release();
+    pAudio->release();
+    delete(pAudio);
+    pAudio = nullptr;
 }
 
 void FFmpeg::play() {
@@ -30,28 +33,12 @@ void FFmpeg::callPlayerJniError(ThreadMode threadMode,int code, char *msg) {
 }
 
 void FFmpeg::release() {
-    if (pCodecContext != NULL) {
-        avcodec_close(pCodecContext);
-        avcodec_free_context(&pCodecContext);
-        pCodecContext = NULL;
-    }
-
     if (pFormatContext != NULL) {
         avformat_close_input(&pFormatContext);
         avformat_free_context(pFormatContext);
         pFormatContext = NULL;
     }
 
-    if (swrContext != NULL) {
-        swr_free(&swrContext);
-        free(swrContext);
-        swrContext = NULL;
-    }
-
-    if (resampleOutBuffer != NULL) {
-        free(resampleOutBuffer);
-        resampleOutBuffer = NULL;
-    }
     avformat_network_deinit();
 
     if(url){
@@ -67,15 +54,13 @@ void FFmpeg::prepare() {
 void *threadPrepare(void *arg) {
     FFmpeg *pFFmpeg = (FFmpeg *) arg;
     pFFmpeg->prepareOpenSLES(THREAD_CHILD);
-    return NULL;
+    return nullptr;
 }
 
 void FFmpeg::prepareAsync() {
     pthread_t prepareThreadT;
-    pthread_create(&prepareThreadT, NULL, threadPrepare, this);
-    int *retval;
-    pthread_join(prepareThreadT, reinterpret_cast<void **>(retval));
-    LOGE("retval：%d",retval);
+    pthread_create(&prepareThreadT, nullptr, threadPrepare, this);
+    pthread_detach(prepareThreadT);// 不会阻塞主线程，当线程终止后会自动销毁线程资源
 }
 
 void FFmpeg::prepareOpenSLES(ThreadMode threadMode) {
@@ -86,10 +71,6 @@ void FFmpeg::prepareOpenSLES(ThreadMode threadMode) {
 
     int formatOpenInputRes = -1;
     int formatFindStreamInfoRes = -1;
-    AVCodecParameters *pCodecParameters;
-    AVCodec *pCodec = NULL;
-    int codecParametersToContextRes = -1;
-    int codecOpenRes = -1;
 
     // 3.打开输入
     formatOpenInputRes = avformat_open_input(&pFormatContext, url, NULL, NULL);
@@ -121,68 +102,12 @@ void FFmpeg::prepareOpenSLES(ThreadMode threadMode) {
     AVStream *audio_stream = pFormatContext->streams[audioStreamIndex];
     LOGE("采样率：%d, 通道数: %d", audio_stream->codecpar->sample_rate, audio_stream->codecpar->channels);
 
-    // 6.查找解码
-    pCodecParameters = pFormatContext->streams[audioStreamIndex]->codecpar;
-    pCodec = avcodec_find_decoder(pCodecParameters->codec_id);
-    if (pCodec == NULL) {
-        LOGE("codec find audio decoder error");
-        callPlayerJniError(threadMode,CODEC_FIND_DECODER_ERROR_CODE, "codec find audio decoder error");
-        return;
-    }
+    // 不是我的事我不干
+    pAudio = new Audio(audioStreamIndex,pJniCall,pFormatContext);
+    pAudio->analysisStream(threadMode,pFormatContext->streams);
 
-    // 7.创建一个解码器的上下文
-    pCodecContext = avcodec_alloc_context3(pCodec);
-    if (pCodecContext == NULL) {
-        LOGE("codec alloc context error");
-        callPlayerJniError(threadMode,CODEC_ALLOC_CONTEXT_ERROR_CODE, "codec alloc context error");
-        return;
-    }
-    // 8.根据参数值填充Codec上下文参数
-    codecParametersToContextRes = avcodec_parameters_to_context(pCodecContext, pCodecParameters);
-    if (codecParametersToContextRes < 0) {
-        LOGE("codec parameters to context error: %s", av_err2str(codecParametersToContextRes));
-        callPlayerJniError(threadMode,codecParametersToContextRes, av_err2str(codecParametersToContextRes));
-        return;
-    }
-    // 9.打开解码器
-    codecOpenRes = avcodec_open2(pCodecContext, pCodec, NULL);
-    if (codecOpenRes != 0) {
-        LOGE("codec audio open error: %s", av_err2str(codecOpenRes));
-        callPlayerJniError(threadMode,codecOpenRes, av_err2str(codecOpenRes));
-        return;
-    }
-
-    // --------------- 重采样 start --------------
-    //输出的声道布局（立体声）
-    int64_t out_ch_layout = AV_CH_LAYOUT_STEREO;
-    //输出采样格式16bit PCM
-    enum AVSampleFormat out_sample_fmt = AVSampleFormat::AV_SAMPLE_FMT_S16;
-    //输出采样率
-    int out_sample_rate = AUDIO_SAMPLE_RATE;
-    //获取输入的声道布局
-    //根据声道个数获取默认的声道布局（2个声道，默认立体声stereo）
-    int64_t in_ch_layout = pCodecContext->channel_layout;
-    //输入的采样格式
-    enum AVSampleFormat in_sample_fmt = pCodecContext->sample_fmt;
-    //输入采样率
-    int in_sample_rate = pCodecContext->sample_rate;
-    swrContext = swr_alloc_set_opts(NULL, out_ch_layout, out_sample_fmt,
-                                    out_sample_rate, in_ch_layout, in_sample_fmt,
-                                    in_sample_rate, 0, NULL);
-    if (swrContext == NULL) {
-        LOGE("swr alloc set opts error");
-        callPlayerJniError(threadMode,SWR_ALLOC_SET_OPTS_ERROR_CODE, "swr alloc set opts error");
-        // 提示错误
-        return;
-    }
-    int swrInitRes = swr_init(swrContext);
-    if (swrInitRes < 0) {
-        LOGE("swr context swr init error");
-        callPlayerJniError(threadMode,SWR_CONTEXT_INIT_ERROR_CODE, "swr context swr init error");
-        return;
-    }
-    pAudio = new Audio(audioStreamIndex,pJniCall,pCodecContext,pFormatContext,swrContext);
     // --------------- 重采样 end --------------
+    // 回调到 Java 告诉他准备好了
     pJniCall->CallPlayerPrepared(threadMode);
 }
 
@@ -246,7 +171,7 @@ void FFmpeg::prepareAudioTrack(ThreadMode threadMode) {
     }
 
     // 7.创建一个解码器的上下文
-    pCodecContext = avcodec_alloc_context3(pCodec);
+    AVCodecContext *pCodecContext = avcodec_alloc_context3(pCodec);
     if (pCodecContext == NULL) {
         LOGE("codec alloc context error");
         callPlayerJniError(threadMode,CODEC_ALLOC_CONTEXT_ERROR_CODE, "codec alloc context error");
@@ -281,7 +206,7 @@ void FFmpeg::prepareAudioTrack(ThreadMode threadMode) {
     enum AVSampleFormat in_sample_fmt = pCodecContext->sample_fmt;
     //输入采样率
     int in_sample_rate = pCodecContext->sample_rate;
-    swrContext = swr_alloc_set_opts(NULL, out_ch_layout, out_sample_fmt,
+    SwrContext *swrContext = swr_alloc_set_opts(NULL, out_ch_layout, out_sample_fmt,
                                     out_sample_rate, in_ch_layout, in_sample_fmt,
                                     in_sample_rate, 0, NULL);
     if (swrContext == NULL) {

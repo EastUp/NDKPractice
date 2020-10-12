@@ -12,7 +12,8 @@
 #include "ConstDefine.h"
 #include <SLES/OpenSLES.h>
 #include <SLES/OpenSLES_Android.h>
-
+#include "PacketQueue.h"
+#include "PlayerStatus.h"
 
 extern "C"{
 #include "libswresample/swresample.h"
@@ -27,16 +28,23 @@ public:
     uint8_t *resampleOutBuffer = NULL;
     JNICall *pJniCall = NULL;
     int audioStreamIndex = -1;
-
+    PacketQueue *pPacketQueue = NULL;
+    PlayerStatus *pPlayerStatus = NULL;
 public:
-    Audio(int audioStreamIndex,JNICall *pJniCall,AVCodecContext *pCodecContext,
-          AVFormatContext *pFormatContext,SwrContext *pSwrContext);
+    Audio(int audioStreamIndex,JNICall *pJniCall,AVFormatContext *pFormatContext);
+    ~Audio();
 
     void play();
 
     void initCreateOpenSLES();
 
     int resampleAudio();
+
+    void analysisStream(ThreadMode threadMode,AVStream **stream);
+
+    void callPlayerJniError(ThreadMode threadMode, int code, char* msg);
+
+    void release();
 };
 
 

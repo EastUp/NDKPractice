@@ -18,9 +18,6 @@ extern "C"{
 class FFmpeg {
 public:
     AVFormatContext *pFormatContext = NULL;
-    AVCodecContext *pCodecContext = NULL;
-    SwrContext *swrContext = NULL;
-    uint8_t *resampleOutBuffer = NULL;
     char* url = NULL;
     JNICall *pJniCall = NULL;
     Audio *pAudio = NULL;

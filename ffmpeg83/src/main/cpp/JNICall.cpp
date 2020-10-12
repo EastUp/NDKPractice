@@ -106,7 +106,7 @@ void JNICall::callPlayerError(ThreadMode threadMode, int code, char *msg) {
     } else {
         // 通过 JavaVM获取当前线程的 JniEnv
         JNIEnv *env;
-        if (javaVM->AttachCurrentThread(&env, 0) != JNI_OK) {
+        if (javaVM->AttachCurrentThread(&env, nullptr) != JNI_OK) {
             LOGE("get child thread jniEnv error");
             return;
         }
@@ -128,7 +128,7 @@ void JNICall::CallPlayerPrepared(ThreadMode threadMode) {
     } else {
         // 通过 JavaVM获取当前线程的 JniEnv
         JNIEnv *env;
-        if (javaVM->AttachCurrentThread(&env, 0) != JNI_OK) {
+        if (javaVM->AttachCurrentThread(&env, nullptr) != JNI_OK) {
             LOGE("get child thread jniEnv error");
             return;
         }
