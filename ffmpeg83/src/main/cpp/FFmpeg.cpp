@@ -108,7 +108,7 @@ void FFmpeg::prepareOpenSLES(ThreadMode threadMode) {
 
     // --------------- 重采样 end --------------
     // 回调到 Java 告诉他准备好了
-    pJniCall->CallPlayerPrepared(threadMode);
+    pJniCall->callPlayerPrepared(threadMode);
 }
 
 

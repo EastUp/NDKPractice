@@ -34,7 +34,6 @@ public class JaminVideoView extends SurfaceView implements MediaPreparedListener
         holder.setFormat(PixelFormat.RGBA_8888);
         mPlayer = new JaminPlayer();
         mPlayer.setOnPreParedListener(this);
-
     }
 
     public void play(String url){
@@ -46,12 +45,14 @@ public class JaminVideoView extends SurfaceView implements MediaPreparedListener
     /**
      *  停止方法，释放上一个视频的内存
      */
-    private void stop() {
+    public void stop() {
+        mPlayer.stop();
     }
 
 
     @Override
     public void onPrepared() {
+        mPlayer.setSurface(getHolder().getSurface());
         mPlayer.play();
     }
 }

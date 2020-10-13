@@ -11,18 +11,51 @@ FFmpeg::FFmpeg(JNICall *pJniCall, const char *url) {
     // 解决：重新复制一份，怕外面方法结束销毁了 url
     this->url = (char*)malloc(strlen(url)+1);
     memcpy(this->url, url, strlen(url) + 1);
+
+    pPlayerStatus = new PlayerStatus();
 }
 
 FFmpeg::~FFmpeg() {
     release();
-    pAudio->release();
-    delete(pAudio);
-    pAudio = nullptr;
+}
+
+void *threadReadPacket(void *args){
+    FFmpeg *pFFmpeg = (FFmpeg*)args;
+    while(pFFmpeg->pAudio->pPlayerStatus != NULL && !pFFmpeg->pAudio->pPlayerStatus->isExit){
+        AVPacket *pPacket = av_packet_alloc();
+        // 循环从上下文中读取帧到包中
+        if (av_read_frame(pFFmpeg->pFormatContext, pPacket) >= 0) {
+            if (pPacket->stream_index == pFFmpeg->pAudio->streamIndex) {
+                // 读取音频压缩包数据后，将其push 到 队列中
+                pFFmpeg->pAudio->pPacketQueue->push(pPacket);
+            } else  if (pPacket->stream_index == pFFmpeg->pVideo->streamIndex) {
+                // 读取视频压缩包数据后，将其push 到 队列中
+                pFFmpeg->pVideo->pPacketQueue->push(pPacket);
+            }else{
+                // 1.解引用数据 data, 2.销魂 pPacket 结构体内存， 3.pPacket = NULL;
+                av_packet_free(&pPacket);
+            }
+        }else{
+            // 1.解引用数据 data, 2.销魂 pPacket 结构体内存， 3.pPacket = NULL;
+            av_packet_free(&pPacket);
+            // 睡眠一下，尽量不去消耗 cpu 的资源，也可以退出销毁这个线程
+            // break;
+        }
+    }
+    return nullptr;
 }
 
 void FFmpeg::play() {
+    // 一个线程去读取 Packet
+    pthread_t readPacketThreadT;
+    pthread_create(&readPacketThreadT,NULL,threadReadPacket,this);
+    pthread_detach(readPacketThreadT);// 不会阻塞主线程，当线程终止后会自动销毁线程资源
+
     if(pAudio)
         pAudio->play();
+
+    if(pVideo)
+        pVideo->play();
 }
 
 void FFmpeg::callPlayerJniError(ThreadMode threadMode,int code, char *msg) {
@@ -44,6 +77,21 @@ void FFmpeg::release() {
     if(url){
         free(url);
         url == NULL;
+    }
+
+    if (pPlayerStatus != NULL) {
+        delete (pPlayerStatus);
+        pPlayerStatus = NULL;
+    }
+
+    if (pAudio) {
+        delete (pAudio);
+        pAudio = nullptr;
+    }
+
+    if (pVideo) {
+        delete (pVideo);
+        pVideo = nullptr;
     }
 }
 
@@ -73,7 +121,7 @@ void FFmpeg::prepareOpenSLES(ThreadMode threadMode) {
     int formatFindStreamInfoRes = -1;
 
     // 3.打开输入
-    formatOpenInputRes = avformat_open_input(&pFormatContext, url, NULL, NULL);
+    formatOpenInputRes = avformat_open_input(&pFormatContext, url, nullptr, nullptr);
     if (formatOpenInputRes != 0) {
         // 第一件事，需要回调给 Java层
         // 第二件 事，需要释放资源
@@ -83,7 +131,7 @@ void FFmpeg::prepareOpenSLES(ThreadMode threadMode) {
     }
 
     // 4.找出输入流的信息
-    formatFindStreamInfoRes = avformat_find_stream_info(pFormatContext, NULL);
+    formatFindStreamInfoRes = avformat_find_stream_info(pFormatContext, nullptr);
     if (formatFindStreamInfoRes < 0) {
         LOGE("format find stream info error: %s", av_err2str(formatFindStreamInfoRes));
         callPlayerJniError(threadMode,formatFindStreamInfoRes, av_err2str(formatFindStreamInfoRes));
@@ -91,8 +139,8 @@ void FFmpeg::prepareOpenSLES(ThreadMode threadMode) {
     }
 
     // 5.查找音频流的 index
-    int audioStreamIndex = av_find_best_stream(pFormatContext, AVMediaType::AVMEDIA_TYPE_AUDIO, -1, -1,
-                                           NULL, 0);
+    int audioStreamIndex = av_find_best_stream(pFormatContext, AVMediaType::AVMEDIA_TYPE_AUDIO, -1,
+            -1,nullptr, 0);
     if (audioStreamIndex < 0) {
         LOGE("format audio stream error");
         callPlayerJniError(threadMode,FIND_STREAM_ERROR_CODE, "format audio stream error");
@@ -102,13 +150,31 @@ void FFmpeg::prepareOpenSLES(ThreadMode threadMode) {
     AVStream *audio_stream = pFormatContext->streams[audioStreamIndex];
     LOGE("采样率：%d, 通道数: %d", audio_stream->codecpar->sample_rate, audio_stream->codecpar->channels);
 
-    // 不是我的事我不干
-    pAudio = new Audio(audioStreamIndex,pJniCall,pFormatContext);
-    pAudio->analysisStream(threadMode,pFormatContext->streams);
+    // 音频
+    pAudio = new Audio(audioStreamIndex,pJniCall,pPlayerStatus);
+    pAudio->analysisStream(threadMode,pFormatContext);
 
-    // --------------- 重采样 end --------------
+    // 6.查找视频流的 index
+    int videoStreamIndex = av_find_best_stream(pFormatContext, AVMediaType::AVMEDIA_TYPE_VIDEO, -1,
+            -1,NULL, 0);
+    // 如果没有视频只有音频就注释掉这个判断
+    if (videoStreamIndex < 0) {
+        LOGE("find video stream error");
+        callPlayerJniError(threadMode,FIND_STREAM_ERROR_CODE, "find video stream error");
+        return;
+    }
+
+    // 视频
+    pVideo = new Video(videoStreamIndex,pJniCall,pPlayerStatus,pAudio);
+    pVideo->analysisStream(threadMode,pFormatContext);
+
     // 回调到 Java 告诉他准备好了
-    pJniCall->CallPlayerPrepared(threadMode);
+    pJniCall->callPlayerPrepared(threadMode);
+}
+
+void FFmpeg::setSurface(jobject surface) {
+    if(pVideo)
+        pVideo->setSurface(surface);
 }
 
 

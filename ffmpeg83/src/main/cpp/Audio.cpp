@@ -17,7 +17,7 @@ Audio::~Audio() {
     release();
 }
 
-void *threadPlay(void *args){
+void *threadAudioPlay(void *args){
     Audio *pAudio = (Audio*)args;
     pAudio->initCreateOpenSLES();
     return nullptr;
@@ -55,7 +55,7 @@ void Audio::play() {
 
     // 一个线程去解码播放
     pthread_t playThreadT;
-    pthread_create(&playThreadT,NULL,threadPlay,this);
+    pthread_create(&playThreadT, NULL, threadAudioPlay, this);
     pthread_detach(playThreadT); // 不会阻塞主线程，当线程终止后会自动销毁线程资源
 }
 

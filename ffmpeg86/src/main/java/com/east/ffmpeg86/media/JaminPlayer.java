@@ -1,6 +1,7 @@
 package com.east.ffmpeg86.media;
 
 import android.text.TextUtils;
+import android.view.Surface;
 
 import com.east.ffmpeg83.media.listener.MediaErrorListener;
 import com.east.ffmpeg83.media.listener.MediaPreparedListener;
@@ -55,10 +56,8 @@ public class JaminPlayer {
             throw new NullPointerException("url is null,please call method setDataSource");
         }
 
-        nPlay(url);
+        nPlay();
     }
-
-    private native void nPlay(String url);
 
     public void prepare() {
         if (TextUtils.isEmpty(url)) {
@@ -67,7 +66,6 @@ public class JaminPlayer {
         nPrepare(url);
     }
 
-    private native void nPrepare(String url);
 
     /**
      *  异步准备
@@ -79,5 +77,15 @@ public class JaminPlayer {
         nPrepareAsync(url);
     }
 
+    public void stop() {
+
+    }
+
+    private native void nPlay();
+
+    private native void nPrepare(String url);
+
     private native void nPrepareAsync(String url);
+
+    public native void setSurface(Surface surface);
 }

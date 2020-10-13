@@ -8,6 +8,7 @@
 #include "JNICall.h"
 #include <pthread.h>
 #include "Audio.h"
+#include "Video.h"
 
 // 在 c++ 中采用 c 的这种编译方式
 extern "C"{
@@ -20,7 +21,9 @@ public:
     AVFormatContext *pFormatContext = NULL;
     char* url = NULL;
     JNICall *pJniCall = NULL;
+    PlayerStatus *pPlayerStatus;
     Audio *pAudio = NULL;
+    Video *pVideo = NULL;
 
 public:
     FFmpeg(JNICall *pJniCall,const char *url);
@@ -40,6 +43,8 @@ public:
     void callPlayerJniError(ThreadMode threadMode,int code,char *msg);
 
     void release();
+
+    void setSurface(jobject surface);
 };
 
 

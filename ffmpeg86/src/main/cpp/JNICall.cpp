@@ -120,10 +120,10 @@ void JNICall::callPlayerError(ThreadMode threadMode, int code, char *msg) {
 
 }
 
-void JNICall::CallPlayerPrepared(ThreadMode threadMode) {
+void JNICall::callPlayerPrepared(ThreadMode mode) {
     // 子线程(pThread)用不了主线程(native线程)的 jniEnv
     // 子线程是不共享 jniEnv，他们有自己所独有的
-    if (threadMode == THREAD_MAIN) {
+    if (mode == THREAD_MAIN) {
         jniEnv->CallVoidMethod(jPlayerObj, jPlayerPreparedMid);
     } else {
         // 通过 JavaVM获取当前线程的 JniEnv

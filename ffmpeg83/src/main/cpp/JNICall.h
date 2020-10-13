@@ -33,7 +33,7 @@ public:
 
     void callPlayerError(ThreadMode threadMode,int code,char *msg);
 
-    void CallPlayerPrepared(ThreadMode mode);
+    void callPlayerPrepared(ThreadMode mode);
 };
 
 #endif //NDKPRACTICE_JNICALL_H

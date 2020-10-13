@@ -21,13 +21,14 @@ extern "C"{
 #include "libavformat/avformat.h"
 }
 
-class Audio {
+class Audio: public Media {
 public:
     AVFormatContext *pFormatContext = NULL;
     SwrContext *pSwrContext = NULL;
     uint8_t *resampleOutBuffer = NULL;
 public:
-    Audio(int audioStreamIndex,JNICall *pJniCall,AVFormatContext *pFormatContext);
+    Audio(int audioStreamIndex,JNICall *pJniCall, PlayerStatus *pPlayerStatus);
+
     ~Audio();
 
     void play();
@@ -36,9 +37,7 @@ public:
 
     int resampleAudio();
 
-    void analysisStream(ThreadMode threadMode,AVStream **stream);
-
-    void callPlayerJniError(ThreadMode threadMode, int code, char* msg);
+    void privateAnalysisStream(ThreadMode threadMode,AVFormatContext *pFormatContext);
 
     void release();
 };

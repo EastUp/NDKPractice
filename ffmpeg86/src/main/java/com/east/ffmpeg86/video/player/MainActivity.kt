@@ -24,7 +24,7 @@ import java.io.File
 class MainActivity : AppCompatActivity() {
 
     val mVideoFile by lazy {
-        File(Environment.getExternalStorageDirectory(), "我的资源/NBA.mp4")
+        File(Environment.getExternalStorageDirectory(), "我的资源/等风来不如追风去.mp4")
     }
 
     val permissions = arrayOf(
@@ -45,7 +45,6 @@ class MainActivity : AppCompatActivity() {
         PermissionCheckUtils.checkPermission(this, permissions, object : PermissionListener {
             override fun onGranted() {
                 jaminVideoView.play(mVideoFile.absolutePath)
-                decodeVideo(mVideoFile.absolutePath, jaminVideoView.holder.surface)
             }
 
             override fun onCancel() {
@@ -54,7 +53,6 @@ class MainActivity : AppCompatActivity() {
         })
     }
 
-    private external fun decodeVideo(absolutePath: String, surface: Surface)
 
     fun dp2px(dp: Float) = TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP,dp,resources.displayMetrics)
 }

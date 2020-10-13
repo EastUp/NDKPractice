@@ -5,31 +5,28 @@
 #include "Audio.h"
 #include <pthread.h>
 
-Audio::Audio(int audioStreamIndex, JNICall *pJniCall,AVFormatContext *pFormatContext) {
-    this->audioStreamIndex =audioStreamIndex;
-    this->pJniCall = pJniCall;
-    this->pFormatContext = pFormatContext;
-    pPacketQueue = new PacketQueue();
-    pPlayerStatus = new PlayerStatus();
+Audio::Audio(int audioStreamIndex, JNICall *pJniCall, PlayerStatus *pPlayerStatus)
+    :Media(audioStreamIndex,pJniCall,pPlayerStatus) {
+
 }
 
 Audio::~Audio() {
     release();
 }
 
-void *threadPlay(void *args){
+void *threadAudioPlay(void *args){
     Audio *pAudio = (Audio*)args;
     pAudio->initCreateOpenSLES();
     return nullptr;
 }
 
-void *threadReadPacket(void *args){
+/*void *threadReadPacket(void *args){
     Audio *pAudio = (Audio*)args;
     while(pAudio->pPlayerStatus != NULL && !pAudio->pPlayerStatus->isExit){
        AVPacket *pPacket = av_packet_alloc();
         // 循环从上下文中读取帧到包中
         if (av_read_frame(pAudio->pFormatContext, pPacket) >= 0) {
-            if (pPacket->stream_index == pAudio->audioStreamIndex) {
+            if (pPacket->stream_index == pAudio->streamIndex) {
                 // 读取音频压缩包数据后，将其push 到 队列中
                 pAudio->pPacketQueue->push(pPacket);
             }else{
@@ -44,18 +41,18 @@ void *threadReadPacket(void *args){
         }
     }
     return nullptr;
-}
+}*/
 
 void Audio::play() {
-    // 一个线程去读取 Packet
-    pthread_t readPacketThreadT;
+    // 一个线程去读取 Packet,为了音视频同步，读取应该公共，放到FFmpeg中去
+   /* pthread_t readPacketThreadT;
     pthread_create(&readPacketThreadT,NULL,threadReadPacket,this);
-    pthread_detach(readPacketThreadT);// 不会阻塞主线程，当线程终止后会自动销毁线程资源
+    pthread_detach(readPacketThreadT);// 不会阻塞主线程，当线程终止后会自动销毁线程资源*/
 
 
     // 一个线程去解码播放
     pthread_t playThreadT;
-    pthread_create(&playThreadT,NULL,threadPlay,this);
+    pthread_create(&playThreadT, NULL, threadAudioPlay, this);
     pthread_detach(playThreadT); // 不会阻塞主线程，当线程终止后会自动销毁线程资源
 }
 
@@ -162,38 +159,7 @@ void Audio::initCreateOpenSLES() {
     playerCallback(playerBufferQueue,this);
 }
 
-void Audio::analysisStream(ThreadMode threadMode, AVStream **stream) {
-    // 6.查找解码
-    AVCodecParameters *pCodecParameters = pFormatContext->streams[audioStreamIndex]->codecpar;
-    AVCodec *pCodec = avcodec_find_decoder(pCodecParameters->codec_id);
-    if (pCodec == NULL) {
-        LOGE("codec find audio decoder error");
-        callPlayerJniError(threadMode,CODEC_FIND_DECODER_ERROR_CODE, "codec find audio decoder error");
-        return;
-    }
-
-    // 7.创建一个解码器的上下文
-    pCodecContext = avcodec_alloc_context3(pCodec);
-    if (pCodecContext == NULL) {
-        LOGE("codec alloc context error");
-        callPlayerJniError(threadMode,CODEC_ALLOC_CONTEXT_ERROR_CODE, "codec alloc context error");
-        return;
-    }
-    // 8.根据参数值填充Codec上下文参数
-    int codecParametersToContextRes = avcodec_parameters_to_context(pCodecContext, pCodecParameters);
-    if (codecParametersToContextRes < 0) {
-        LOGE("codec parameters to context error: %s", av_err2str(codecParametersToContextRes));
-        callPlayerJniError(threadMode,codecParametersToContextRes, av_err2str(codecParametersToContextRes));
-        return;
-    }
-    // 9.打开解码器
-    int codecOpenRes = avcodec_open2(pCodecContext, pCodec, NULL);
-    if (codecOpenRes != 0) {
-        LOGE("codec audio open error: %s", av_err2str(codecOpenRes));
-        callPlayerJniError(threadMode,codecOpenRes, av_err2str(codecOpenRes));
-        return;
-    }
-
+void Audio::privateAnalysisStream(ThreadMode threadMode,AVFormatContext *pFormatContext) {
     // --------------- 重采样 start --------------
     //输出的声道布局（立体声）
     int64_t out_ch_layout = AV_CH_LAYOUT_STEREO;
@@ -219,37 +185,17 @@ void Audio::analysisStream(ThreadMode threadMode, AVStream **stream) {
     }
     int swrInitRes = swr_init(pSwrContext);
     if (swrInitRes < 0) {
-        LOGE("swr context swr init error");
+        LOGE("swr context swr init error %d",swrInitRes);
         callPlayerJniError(threadMode,SWR_CONTEXT_INIT_ERROR_CODE, "swr context swr init error");
         return;
     }
 
-    this->resampleOutBuffer = (uint8_t *)(malloc(pCodecContext->frame_size * 2 * 2));
-}
-
-void Audio::callPlayerJniError(ThreadMode threadMode, int code, char *msg) {
-    // 释放资源
-    release();
-    // 回调给 java 层调用
-    pJniCall->callPlayerError(threadMode,code,msg);
+    resampleOutBuffer = (uint8_t *)(malloc(pCodecContext->frame_size * 2 * 2));
+    // ---------- 重采样 end ----------
 }
 
 void Audio::release() {
-    if(pPacketQueue){
-        delete(pPacketQueue);
-        pPacketQueue = nullptr;
-    }
-
-    if(pPlayerStatus){
-        delete(pPlayerStatus);
-        pPlayerStatus = nullptr;
-    }
-
-    if (pCodecContext != NULL) {
-        avcodec_close(pCodecContext);
-        avcodec_free_context(&pCodecContext);
-        pCodecContext = NULL;
-    }
+    Media::release();
 
     if (pSwrContext != NULL) {
         swr_free(&pSwrContext);
