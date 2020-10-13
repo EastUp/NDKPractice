@@ -72,9 +72,18 @@ int Audio::resampleAudio() {
                 // 调用重采样的方法，返回值是返回重采样的个数，也就是 pFrame->nb_samples
                 dataSize = swr_convert(pSwrContext, &resampleOutBuffer, pFrame->nb_samples,
                                        (const uint8_t **) pFrame->data, pFrame->nb_samples);
-                LOGE("解码音频帧：%d %d",dataSize,pFrame->nb_samples);
+//                LOGE("解码音频帧：%d %d",dataSize,pFrame->nb_samples);
 
                 dataSize = pFrame->nb_samples * 2 * 2; // 采样率 * 通道数 * 两字节
+
+
+                // 设置当前你的实际，方便回调进度给 Java,方便时视频同步音频
+                // double times = av_frame_get_best_effort_timestamp(pFrame) * av_q2d(timeBase);// 这是秒
+                double times = pPacket->pts * av_q2d(timeBase);// 这是秒
+                if(times > currentTime){
+                    currentTime = times;
+                }
+
                 // write 写到缓冲区 pFrame.data -> javabyte
                 // size 是多大，装 pcm 的数据
                 // 1s 44100 点，2通道， 2字节 44100*2*2

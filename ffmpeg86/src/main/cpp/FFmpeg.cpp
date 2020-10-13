@@ -172,9 +172,10 @@ void FFmpeg::prepareOpenSLES(ThreadMode threadMode) {
     pJniCall->callPlayerPrepared(threadMode);
 }
 
-void FFmpeg::setSurface(jobject surface) {
+void FFmpeg::setSurface(JNIEnv *env,jobject surface) {
+//    pJniCall->jniEnv->NewGlobalRef(surface);
     if(pVideo)
-        pVideo->setSurface(surface);
+        pVideo->setSurface(env,surface);
 }
 
 

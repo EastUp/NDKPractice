@@ -21,10 +21,11 @@ class Video: public Media {
 public:
     SwsContext *pSwsContext = nullptr;
     uint8_t *pFrameBuffer = nullptr;
-    int frameSize;
-    AVFrame *pRgbaFrame;
-    jobject surface;
-    Audio *pAudio;
+    int frameSize = 0;
+    AVFrame *pRgbaFrame = nullptr;
+    JNIEnv *videoJNIEnv = nullptr;
+    jobject surface = nullptr;
+    Audio *pAudio = nullptr;
     /**
      * 视频的延时时间
      */
@@ -46,14 +47,14 @@ public:
 
     void release();
 
-    void setSurface(jobject surface);
+    void setSurface(JNIEnv *env,jobject surface);
 
     /**
      * 视音频同步，计算获取休眠的时间
      * @param pFrame 当前视频帧
      * @return 休眠时间(s)
      */
-    double getFrameSleepTime(AVFrame *pFrame);
+    double getFrameSleepTime(AVPacket *pPacket,AVFrame *pFrame);
 };
 
 

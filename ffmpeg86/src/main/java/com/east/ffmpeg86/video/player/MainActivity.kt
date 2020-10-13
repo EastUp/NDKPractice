@@ -24,7 +24,7 @@ import java.io.File
 class MainActivity : AppCompatActivity() {
 
     val mVideoFile by lazy {
-        File(Environment.getExternalStorageDirectory(), "我的资源/等风来不如追风去.mp4")
+        File(Environment.getExternalStorageDirectory(), "我的资源/一禅小和尚.mp4")
     }
 
     val permissions = arrayOf(

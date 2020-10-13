@@ -27,7 +27,7 @@ public:
     PlayerStatus *pPlayerStatus = NULL;
 
     /**
-     *  整个视频时长
+     *  整个视频时长,单位（微秒）
      */
      int duration = 0;
 

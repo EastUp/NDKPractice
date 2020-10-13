@@ -44,7 +44,7 @@ public:
 
     void release();
 
-    void setSurface(jobject surface);
+    void setSurface(JNIEnv *env,jobject surface);
 };
 
 

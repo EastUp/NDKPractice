@@ -66,8 +66,12 @@ Java_com_east_ffmpeg86_media_JaminPlayer_nPrepareAsync(JNIEnv *env, jobject inst
 extern "C" JNIEXPORT void JNICALL
 Java_com_east_ffmpeg86_media_JaminPlayer_setSurface(JNIEnv *env, jobject instance
             ,jobject surface) {
-    env->NewGlobalRef(surface);
+    if(pJniCall->jniEnv == env){
+        LOGE("env 相等哦");
+    }else{
+        LOGE("env 不相等哦");
+    }
     if(pFFmpeg){
-        pFFmpeg->setSurface(surface);
+        pFFmpeg->setSurface(env,surface);
     }
 }
