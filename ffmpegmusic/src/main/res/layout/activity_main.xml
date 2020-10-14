@@ -1,0 +1,126 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_height="match_parent"
+    android:layout_width="match_parent"
+    android:orientation="vertical"
+    tools:context=".ui.MainActivity">
+
+    <ListView
+        android:divider="#EBEBEB"
+        android:dividerHeight="0.5dp"
+        android:id="@+id/music_lv"
+        android:layout_height="0dp"
+        android:layout_marginLeft="15dp"
+        android:layout_marginRight="15dp"
+        android:layout_weight="1"
+        android:layout_width="match_parent"/>
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:background="#FFFFFF"
+        android:layout_height="wrap_content"
+        android:layout_width="match_parent">
+
+        <com.east.ffmpegmusic.ui.MusicProgressBar
+            android:id="@+id/music_pb"
+            android:layout_height="15dp"
+            android:layout_marginLeft="10dp"
+            android:layout_marginRight="10dp"
+            android:layout_marginTop="10dp"
+            android:layout_width="match_parent"
+            app:layout_constraintTop_toTopOf="parent"/>
+
+        <ImageView
+            android:id="@+id/video_next_iv"
+            android:layout_height="wrap_content"
+            android:layout_width="wrap_content"
+            android:padding="15dp"
+            android:src="@drawable/drawable_selector_video_next"
+            app:layout_constraintBottom_toBottomOf="@+id/video_play_iv"
+            app:layout_constraintLeft_toRightOf="@+id/video_play_iv"
+            app:layout_constraintRight_toLeftOf="@+id/video_next_15s_iv"
+            app:layout_constraintTop_toTopOf="@+id/video_play_iv"/>
+
+        <ImageView
+            android:id="@+id/video_last_iv"
+            android:layout_height="wrap_content"
+            android:layout_width="wrap_content"
+            android:padding="15dp"
+            android:src="@drawable/drawable_selector_video_last"
+            app:layout_constraintBottom_toBottomOf="@+id/video_play_iv"
+            app:layout_constraintLeft_toRightOf="@+id/video_play_iv"
+            app:layout_constraintRight_toLeftOf="@+id/video_last_15s_iv"
+            app:layout_constraintTop_toTopOf="@+id/video_play_iv"/>
+
+        <ImageView
+            android:id="@+id/video_next_15s_iv"
+            android:layout_height="wrap_content"
+            android:layout_width="wrap_content"
+            android:padding="15dp"
+            android:src="@drawable/drawable_selector_video_next_15s"
+            app:layout_constraintBottom_toBottomOf="@+id/video_play_iv"
+            app:layout_constraintLeft_toLeftOf="@+id/multiple_play_iv"
+            app:layout_constraintRight_toRightOf="@+id/multiple_play_iv"
+            app:layout_constraintTop_toTopOf="@+id/video_play_iv"/>
+
+        <ImageView
+            android:id="@+id/video_last_15s_iv"
+            android:layout_height="wrap_content"
+            android:layout_width="wrap_content"
+            android:padding="15dp"
+            android:src="@drawable/drawable_selector_video_last_15s"
+            app:layout_constraintBottom_toBottomOf="@+id/video_play_iv"
+            app:layout_constraintLeft_toLeftOf="@+id/video_random_iv"
+            app:layout_constraintRight_toRightOf="@+id/video_random_iv"
+            app:layout_constraintTop_toTopOf="@+id/video_play_iv"/>
+
+        <ImageView
+            android:id="@+id/video_play_iv"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="10dp"
+            android:layout_width="wrap_content"
+            android:src="@drawable/drawable_selector_video_play"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/music_pb"/>
+
+        <ImageView
+            android:id="@+id/video_random_iv"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="10dp"
+            android:layout_marginTop="10dp"
+            android:layout_width="wrap_content"
+            android:padding="15dp"
+            android:src="@drawable/drawable_selector_video_random"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/video_play_iv"/>
+
+
+        <ImageView
+            android:id="@+id/video_clock_iv"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="10dp"
+            android:layout_width="wrap_content"
+            android:padding="15dp"
+            android:src="@drawable/drawable_selector_video_clock"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/video_play_iv"/>
+
+        <TextView
+            android:id="@+id/multiple_play_iv"
+            android:layout_height="wrap_content"
+            android:layout_marginRight="10dp"
+            android:layout_marginTop="10dp"
+            android:layout_width="wrap_content"
+            android:padding="15dp"
+            android:text="倍速"
+            android:textColor="#333333"
+            android:textStyle="bold"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/video_play_iv"/>
+    </androidx.constraintlayout.widget.ConstraintLayout>
+</LinearLayout>
