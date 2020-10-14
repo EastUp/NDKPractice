@@ -50,8 +50,8 @@
             android:padding="15dp"
             android:src="@drawable/drawable_selector_video_last"
             app:layout_constraintBottom_toBottomOf="@+id/video_play_iv"
-            app:layout_constraintLeft_toRightOf="@+id/video_play_iv"
-            app:layout_constraintRight_toLeftOf="@+id/video_last_15s_iv"
+            app:layout_constraintRight_toLeftOf="@+id/video_play_iv"
+            app:layout_constraintLeft_toRightOf="@+id/video_last_15s_iv"
             app:layout_constraintTop_toTopOf="@+id/video_play_iv"/>
 
         <ImageView
