@@ -19,6 +19,12 @@ LivePush::~LivePush() {
         delete pPacketQueue;
         pPacketQueue = nullptr;
     }
+
+    if(pRtmp){
+        RTMP_Close(pRtmp);
+        free(pRtmp);
+        pRtmp = nullptr;
+    }
 }
 
 void *threadInitConnect(void *args) {

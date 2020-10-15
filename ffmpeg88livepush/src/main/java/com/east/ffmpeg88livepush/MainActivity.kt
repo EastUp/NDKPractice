@@ -27,4 +27,9 @@ class MainActivity : AppCompatActivity() {
 
         mLivePush.initConnect();
     }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        mLivePush.stop()
+    }
 }

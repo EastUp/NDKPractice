@@ -27,3 +27,17 @@ Java_com_east_ffmpeg88livepush_LivePush_nInitConnect(JNIEnv *env, jobject instan
     pLivePush->initConnect();
     env->ReleaseStringUTFChars(liveUrl_, liveUrl);
 }
+
+extern "C" JNIEXPORT void JNICALL
+Java_com_east_ffmpeg88livepush_LivePush_nStop(JNIEnv *env, jobject instance) {
+
+    if(pLivePush){
+        delete pLivePush;
+        pLivePush = nullptr;
+    }
+
+    if(pJniCall){
+        delete pJniCall;
+        pJniCall = nullptr;
+    }
+}
