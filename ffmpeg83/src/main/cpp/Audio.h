@@ -30,6 +30,13 @@ public:
     int audioStreamIndex = -1;
     PacketQueue *pPacketQueue = NULL;
     PlayerStatus *pPlayerStatus = NULL;
+
+    SLObjectItf engineObject = NULL;
+    SLObjectItf outputMixObject = NULL;
+    SLObjectItf pPlayer = NULL;
+    SLPlayItf pPlayItf = NULL;
+
+    pthread_t readPacketThreadT;
 public:
     Audio(int audioStreamIndex,JNICall *pJniCall,AVFormatContext *pFormatContext);
     ~Audio();
@@ -45,6 +52,8 @@ public:
     void callPlayerJniError(ThreadMode threadMode, int code, char* msg);
 
     void release();
+
+    void stop();
 };
 
 

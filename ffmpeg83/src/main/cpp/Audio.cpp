@@ -48,9 +48,9 @@ void *threadReadPacket(void *args){
 
 void Audio::play() {
     // 一个线程去读取 Packet
-    pthread_t readPacketThreadT;
+//    pthread_t readPacketThreadT;
     pthread_create(&readPacketThreadT,NULL,threadReadPacket,this);
-    pthread_detach(readPacketThreadT);// 不会阻塞主线程，当线程终止后会自动销毁线程资源
+//    pthread_detach(readPacketThreadT);// 不会阻塞主线程，当线程终止后会自动销毁线程资源
 
 
     // 一个线程去解码播放
@@ -75,7 +75,7 @@ int Audio::resampleAudio() {
                 // 调用重采样的方法，返回值是返回重采样的个数，也就是 pFrame->nb_samples
                 dataSize = swr_convert(pSwrContext, &resampleOutBuffer, pFrame->nb_samples,
                                        (const uint8_t **) pFrame->data, pFrame->nb_samples);
-                LOGE("解码音频帧：%d %d",dataSize,pFrame->nb_samples);
+//                LOGE("解码音频帧：%d %d",dataSize,pFrame->nb_samples);
 
                 dataSize = pFrame->nb_samples * 2 * 2; // 采样率 * 通道数 * 两字节
                 // write 写到缓冲区 pFrame.data -> javabyte
@@ -102,6 +102,8 @@ void playerCallback(
 ){
     Audio *pAudio = (Audio*)pContext;
     int dataSize = pAudio->resampleAudio();
+    // 把 pcm 的数据回调到 java 层，方便做一些其它需求
+    pAudio->pJniCall->callPlayerCallbackPcm(THREAD_CHILD,reinterpret_cast<jbyte *>(pAudio->resampleOutBuffer), dataSize);
     (*caller)->Enqueue(caller,pAudio->resampleOutBuffer,dataSize);
 }
 
@@ -110,7 +112,7 @@ void Audio::initCreateOpenSLES() {
     XXXES 与 XXX 之间可以说是基本没有区别，区别就是 XXXES 是 XXX 的精简
     而且他们都有一定规则，命名规则 slXXX() , glXXX3f*/
     // 3.1 创建引擎接口对象
-    SLObjectItf engineObject = NULL;
+//    SLObjectItf engineObject = NULL;
     SLEngineItf engineEngine;
     slCreateEngine(&engineObject,0,NULL,0,NULL,NULL);
     // realize the engine
@@ -118,7 +120,7 @@ void Audio::initCreateOpenSLES() {
     // get the engine interface, which is needed in order to create other objects
     (*engineObject)->GetInterface(engineObject,SL_IID_ENGINE,&engineEngine);
     // 3.2 设置混音器
-    static SLObjectItf outputMixObject = NULL;
+//    static SLObjectItf outputMixObject = NULL;
     const SLInterfaceID ids[1] = {SL_IID_ENVIRONMENTALREVERB};
     const SLboolean req[1] = {SL_BOOLEAN_FALSE};
     (*engineEngine)->CreateOutputMix(engineEngine, &outputMixObject, 1, ids, req);
@@ -130,8 +132,8 @@ void Audio::initCreateOpenSLES() {
     (*outputMixEnvironmentalReverb)->SetEnvironmentalReverbProperties(
             outputMixEnvironmentalReverb, &reverbSettings);
     // 3.3 创建播放器
-    SLObjectItf pPlayer = NULL;
-    SLPlayItf pPlayItf = NULL;
+//    SLObjectItf pPlayer = NULL;
+//    SLPlayItf pPlayItf = NULL;
     SLDataLocator_AndroidSimpleBufferQueue simpleBufferQueue = {SL_DATALOCATOR_ANDROIDSIMPLEBUFFERQUEUE, 2};
     SLDataFormat_PCM formatPcm = {SL_DATAFORMAT_PCM,
                                    2, //  2个通道
@@ -225,6 +227,9 @@ void Audio::analysisStream(ThreadMode threadMode, AVStream **stream) {
     }
 
     this->resampleOutBuffer = (uint8_t *)(malloc(pCodecContext->frame_size * 2 * 2));
+    // --------------- 重采样 结束 --------------
+
+    pJniCall->callPlayerMusicInfo(threadMode,AUDIO_SAMPLE_RATE,2);
 }
 
 void Audio::callPlayerJniError(ThreadMode threadMode, int code, char *msg) {
@@ -262,5 +267,18 @@ void Audio::release() {
         resampleOutBuffer = NULL;
     }
 }
+
+void Audio::stop() {
+    if(!pPlayerStatus->isExit){
+        pPlayerStatus->isExit = true;
+
+        // 设置播放状态为停止
+        (*pPlayItf)->SetPlayState(pPlayItf,SL_PLAYSTATE_STOPPED);
+
+        pthread_join(readPacketThreadT,NULL);
+        LOGE("等待退出了");
+    }
+}
+
 
 

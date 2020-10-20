@@ -47,6 +47,11 @@ void FFmpeg::release() {
     }
 }
 
+void FFmpeg::stop() {
+    if(pAudio)
+        pAudio->stop();
+}
+
 void FFmpeg::prepare() {
     prepareOpenSLES(THREAD_MAIN);
 }

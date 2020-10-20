@@ -13,6 +13,8 @@ JNICall::JNICall(JavaVM *javaVM, JNIEnv *jniEnv, jobject jPlayerObj) {
     jclass jPlayerClass = jniEnv->GetObjectClass(jPlayerObj);
     jPlayerErrorMid = jniEnv->GetMethodID(jPlayerClass, "onError", "(ILjava/lang/String;)V");
     jPlayerPreparedMid = jniEnv->GetMethodID(jPlayerClass, "onPrepared", "()V");
+    jPlayerMusicInfoMid = jniEnv->GetMethodID(jPlayerClass, "musicInfo", "(II)V");
+    jPlayerCallbackPcmMid = jniEnv->GetMethodID(jPlayerClass, "callbackPcm", "([BI)V");
 }
 
 void JNICall::createAudioTrack(JNIEnv *env) {
@@ -133,6 +135,44 @@ void JNICall::callPlayerPrepared(ThreadMode mode) {
             return;
         }
         env->CallVoidMethod(jPlayerObj, jPlayerPreparedMid);
+        javaVM->DetachCurrentThread();
+    }
+}
+
+void JNICall::callPlayerMusicInfo(ThreadMode mode,int sampleRate,int channels) {
+    // 子线程(pThread)用不了主线程(native线程)的 jniEnv
+    // 子线程是不共享 jniEnv，他们有自己所独有的
+    if (mode == THREAD_MAIN) {
+        jniEnv->CallVoidMethod(jPlayerObj, jPlayerMusicInfoMid,sampleRate,channels);
+    } else {
+        // 通过 JavaVM获取当前线程的 JniEnv
+        JNIEnv *env;
+        if (javaVM->AttachCurrentThread(&env, nullptr) != JNI_OK) {
+            LOGE("get child thread jniEnv error");
+            return;
+        }
+        env->CallVoidMethod(jPlayerObj, jPlayerMusicInfoMid,sampleRate,channels);
+        javaVM->DetachCurrentThread();
+    }
+}
+
+void JNICall::callPlayerCallbackPcm(ThreadMode mode,jbyte* pcmData,int size) {
+    // 子线程(pThread)用不了主线程(native线程)的 jniEnv
+    // 子线程是不共享 jniEnv，他们有自己所独有的
+    if (mode == THREAD_MAIN) {
+        jbyteArray jarray = jniEnv->NewByteArray(size);
+        jniEnv->SetByteArrayRegion(jarray,0,size,pcmData);
+        jniEnv->CallVoidMethod(jPlayerObj, jPlayerCallbackPcmMid,jarray,size);
+    } else {
+        // 通过 JavaVM获取当前线程的 JniEnv
+        JNIEnv *env;
+        if (javaVM->AttachCurrentThread(&env, nullptr) != JNI_OK) {
+            LOGE("get child thread jniEnv error");
+            return;
+        }
+        jbyteArray jarray = env->NewByteArray(size);
+        env->SetByteArrayRegion(jarray,0,size,pcmData);
+        env->CallVoidMethod(jPlayerObj, jPlayerCallbackPcmMid,jarray,size);
         javaVM->DetachCurrentThread();
     }
 }

@@ -4,10 +4,12 @@ import android.Manifest
 import android.os.Bundle
 import android.os.Environment
 import android.util.Log
+import android.view.View
 import androidx.appcompat.app.AppCompatActivity
 import com.east.ffmpeg83.R
 import com.east.ffmpeg83.media.JaminPlayer
 import com.east.ffmpeg83.media.listener.MediaErrorListener
+import com.east.ffmpeg83.media.listener.MediaInfoListener
 import com.east.ffmpeg83.media.listener.MediaPreparedListener
 import com.east.permission.PermissionCheckUtils
 import com.east.permission.PermissionListener
@@ -56,7 +58,18 @@ class MainActivity : AppCompatActivity() {
                     mPlayer.play()
                 }
             })
-            mPlayer.prepareAsync()
+
+            mPlayer.setOnInfoListener(object :MediaInfoListener{
+                override fun musicInfo(sampleRate: Int, channels: Int) {
+                    Log.e("TAG", "采样率：$sampleRate，通道：$channels")
+                }
+
+                override fun callbackPcm(pcmData: ByteArray, size: Int) {
+                    Log.e("TAG", "pcm数据：$pcmData\n，大小：$size")
+                }
+
+            })
+
         }else{
             PermissionCheckUtils.checkPermission(this, permissions, object : PermissionListener {
                 override fun onGranted() {
@@ -68,5 +81,12 @@ class MainActivity : AppCompatActivity() {
                 }
             })
         }
+    }
+
+    fun onStart(view: View) {
+        mPlayer.prepareAsync()
+    }
+    fun onStop(view: View) {
+        mPlayer.stop()
     }
 }

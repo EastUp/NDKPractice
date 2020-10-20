@@ -3,6 +3,7 @@ package com.east.ffmpeg83.media;
 import android.text.TextUtils;
 
 import com.east.ffmpeg83.media.listener.MediaErrorListener;
+import com.east.ffmpeg83.media.listener.MediaInfoListener;
 import com.east.ffmpeg83.media.listener.MediaPreparedListener;
 
 /**
@@ -25,6 +26,7 @@ public class JaminPlayer {
 
     private MediaErrorListener mErrorListener;
     private MediaPreparedListener mPreparedListener;
+    private MediaInfoListener mInfoListener;
 
     public void setOnErrorListener(MediaErrorListener errorListener) {
         this.mErrorListener = errorListener;
@@ -32,6 +34,20 @@ public class JaminPlayer {
 
     public void setOnPreParedListener(MediaPreparedListener preparedListener) {
         this.mPreparedListener = preparedListener;
+    }
+
+    public void setOnInfoListener(MediaInfoListener infoListener) {
+        this.mInfoListener = infoListener;
+    }
+
+    private void musicInfo(int sampleRate,int channels){
+        if(mInfoListener!=null)
+            mInfoListener.musicInfo(sampleRate,channels);
+    }
+
+    private void callbackPcm(byte[] pcmData,int size){
+        if(mInfoListener!=null)
+            mInfoListener.callbackPcm(pcmData,size);
     }
 
     // called from jni
@@ -80,4 +96,10 @@ public class JaminPlayer {
     }
 
     private native void nPrepareAsync(String url);
+
+    public void stop(){
+        nStop();
+    }
+
+    private native void nStop();
 }

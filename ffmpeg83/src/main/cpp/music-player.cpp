@@ -55,3 +55,17 @@ Java_com_east_ffmpeg83_media_JaminPlayer_nPrepareAsync(JNIEnv *env, jobject inst
     }
     env->ReleaseStringUTFChars(url_, url);
 }
+
+extern "C" JNIEXPORT void JNICALL
+Java_com_east_ffmpeg83_media_JaminPlayer_nStop(JNIEnv *env, jobject instance) {
+    if(pFFmpeg != NULL){
+        pFFmpeg->stop();
+        delete pFFmpeg;
+        pFFmpeg = nullptr;
+    }
+
+    if(pJniCall != NULL){
+        delete pJniCall;
+        pJniCall = nullptr;
+    }
+}
