@@ -10,9 +10,18 @@ cmake_minimum_required(VERSION 3.4.1)
 # 添加 define  -DNO_CRYPTO 解决报错 'openssl/ssl.h' file not found
 set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -DNO_CRYPTO")
 
+# 添加共享库搜索路径
+link_directories(${CMAKE_SOURCE_DIR}/../jniLibs/armeabi-v7a)
+
 # 指定源文件目录
 aux_source_directory(${CMAKE_SOURCE_DIR} SRC_LIST)
 aux_source_directory(${CMAKE_SOURCE_DIR}/rtmp RTMP_LIST)
+
+set(
+        # List variable name
+        ffmpeg_libs_names
+        # Values in the list
+        avutil swresample swscale avcodec postproc avformat avfilter avdevice)
 
 # 查找代码中使用到的系统库
 find_library( # Sets the name of the path variable.
@@ -41,6 +50,8 @@ target_link_libraries(
         # 指定目标库，live-push 是在上面 add_library 中配置的目标库
         live-push
 
+        # 链接 FFmpeg 相关的库
+        ${ffmpeg_libs_names}
         # 链接 android ndk 自带的一些库
         android
         # 链接OpenSLES

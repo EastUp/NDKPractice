@@ -32,10 +32,10 @@ RTMPPacket *PacketQueue::pop() {
     while(pPacketQueue->empty()){ // 如果队列是空的，则等待队列中有数据
         pthread_cond_wait(&packetCond,&packetMutex);
     }
-    RTMPPacket *avPacket = pPacketQueue->front();
+    RTMPPacket *pPacket = pPacketQueue->front();
     pPacketQueue->pop();
     pthread_mutex_unlock(&packetMutex);
-    return avPacket;
+    return pPacket;
 }
 
 void PacketQueue::clear() {

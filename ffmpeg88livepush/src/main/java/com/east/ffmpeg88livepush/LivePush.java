@@ -63,4 +63,27 @@ public class LivePush {
 
     private native void nStop();
 
+    /**
+     * 将sps 和 pps 推送到流媒体服务器上去
+     * @param spsData
+     * @param spsLen
+     * @param ppsData
+     * @param ppsLen
+     */
+    public native void pushSpsPps(byte[] spsData, int spsLen, byte[] ppsData, int ppsLen);
+
+    /**
+     *  将视频数据推送到流媒体服务器上
+     * @param videoData 视频数据
+     * @param dataLen 视频长度
+     * @param keyFrame 是否是关键帧
+     */
+    public native void pushVideo(byte[] videoData, int dataLen, boolean keyFrame);
+
+    /**
+     * 将音频数据推送到流媒体服务器上去
+     * @param audioData
+     * @param dataLen
+     */
+    public native void pushAudio(byte[] audioData, int dataLen);
 }

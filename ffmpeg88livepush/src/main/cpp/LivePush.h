@@ -19,7 +19,8 @@ public:
     char *liveUrl = nullptr;
     PacketQueue *pPacketQueue = nullptr;
     RTMP *pRtmp = nullptr;
-
+    bool isPushing = true;
+    uint32_t startTime;
 public:
     LivePush(JNICall *pJniCall,const char *liveUrl);
 
@@ -27,6 +28,12 @@ public:
 
 public:
     void initConnect();
+
+    void pushSpsPps(jbyte *spsData, jint spsLen, jbyte *ppsData, jint ppsLen);
+
+    void pushVideoData(jbyte *videoData, jint dataLen, jboolean keyFrame);
+
+    void pushAudioData(jbyte *audioData, jint dataLen);
 };
 
 

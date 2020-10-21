@@ -44,7 +44,7 @@ class VideoRecordActivity : AppCompatActivity(), BaseVideoRecorder.RecordListene
                         camera_view.eglContext, camera_view.textureId
                     )
                     mVideoRecorder!!.initVideo(
-                        Environment.getExternalStorageDirectory().absolutePath + "/01.mp3",
+                        Environment.getExternalStorageDirectory().absolutePath + "/我的资源/搁浅 - 周杰伦.mp3",
                         Environment.getExternalStorageDirectory().absolutePath + "/live_push.mp4",
                         720, 1280
                     )
