@@ -29,7 +29,7 @@ void PacketQueue::push(AVPacket *pPacket) {
 
 AVPacket *PacketQueue::pop() {
     pthread_mutex_lock(&packetMutex);
-    while(pPacketQueue->empty()){ // 如果队列是空的，则等待队列中有数据
+    if(pPacketQueue->empty()){ // 如果队列是空的，则等待队列中有数据
         pthread_cond_wait(&packetCond,&packetMutex);
     }
     AVPacket *avPacket = pPacketQueue->front();

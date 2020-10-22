@@ -12,7 +12,6 @@ LivePush::LivePush(JNICall *pJniCall, const char *liveUrl) {
 }
 
 LivePush::~LivePush() {
-    isPushing = false;
     if (this->liveUrl)
         free(this->liveUrl);
 
@@ -62,19 +61,23 @@ void *threadInitConnect(void *args) {
     while (pLivePush->isPushing) {
         // 不断的往流媒体服务器上推
         RTMPPacket *pPacket = pLivePush->pPacketQueue->pop();
-        int res = RTMP_SendPacket(pLivePush->pRtmp, pPacket, 1);
-        LOGE("res = %d", res); // 1不一定成功，0一定不成功
-        RTMPPacket_Free(pPacket);
-        free(pPacket);
+        if(pPacket != NULL){
+          /*  int res = */RTMP_SendPacket(pLivePush->pRtmp, pPacket, 1);
+//        LOGE("res = %d", res); // 1不一定成功，0一定不成功
+            RTMPPacket_Free(pPacket);
+            free(pPacket);
+        }
     }
+
+    LOGE("停止了");
+
     return 0;
 }
 
 void LivePush::initConnect() {
     // 在子线程中进行连接
-    pthread_t initConnecTid;
     pthread_create(&initConnecTid, nullptr, threadInitConnect, this);
-    pthread_detach(initConnecTid);
+//    pthread_detach(initConnecTid);
 }
 
 void LivePush::pushSpsPps(jbyte *spsData, jint spsLen, jbyte *ppsData, jint ppsLen) {
@@ -242,4 +245,11 @@ void LivePush::pushAudioData(jbyte *audioData, jint dataLen) {
 
     pPacketQueue->push(pPacket);
 
+}
+
+void LivePush::stop() {
+    isPushing = false;
+    pPacketQueue->notify();
+    pthread_join(initConnecTid, nullptr);// 这里会阻塞等待initConnectTid 线程结束，保证了不会空指针
+    LOGE("等待停止了");
 }

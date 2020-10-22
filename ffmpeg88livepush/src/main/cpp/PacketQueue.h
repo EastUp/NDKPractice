@@ -34,6 +34,8 @@ public:
      * 清除整个队列
      */
      void clear();
+
+     void notify();
 };
 
 

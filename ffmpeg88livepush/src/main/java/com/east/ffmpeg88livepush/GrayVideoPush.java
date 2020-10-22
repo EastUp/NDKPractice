@@ -6,14 +6,18 @@ import javax.microedition.khronos.egl.EGLContext;
 
 /**
  * |---------------------------------------------------------------------------------------------------------------|
- *  @description:  默认彩色视频的推流
+ *  @description:  灰色视频的推流
  *  @author: jamin
- *  @date: 2020/10/21 11:05
+ *  @date: 2020/10/20 13:39
  * |---------------------------------------------------------------------------------------------------------------|
  */
-public class DefaultVideoPush extends BaseVideoPush {
-    public DefaultVideoPush(Context context, EGLContext eglContext, int textureId) {
+public class GrayVideoPush extends BaseVideoPush {
+    private PushRenderer mPushRenderer;
+
+    public GrayVideoPush(Context context, EGLContext eglContext, int textureId) {
         super(context, eglContext);
-        setRenderer(new PushRenderer(context, textureId));
+        mPushRenderer = new PushRenderer(context, textureId);
+        setRenderer(mPushRenderer);
+        mPushRenderer.setFragmentRender(R.raw.filter_fragment_gray);
     }
 }

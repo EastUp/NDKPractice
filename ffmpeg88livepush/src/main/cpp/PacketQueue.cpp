@@ -28,12 +28,14 @@ void PacketQueue::push(RTMPPacket *pPacket) {
 }
 
 RTMPPacket *PacketQueue::pop() {
+    RTMPPacket *pPacket = nullptr;
     pthread_mutex_lock(&packetMutex);
-    while(pPacketQueue->empty()){ // 如果队列是空的，则等待队列中有数据
+    if(pPacketQueue->empty()){ // 如果队列是空的，则等待队列中有数据
         pthread_cond_wait(&packetCond,&packetMutex);
+    }else{
+        pPacket = pPacketQueue->front();
+        pPacketQueue->pop();
     }
-    RTMPPacket *pPacket = pPacketQueue->front();
-    pPacketQueue->pop();
     pthread_mutex_unlock(&packetMutex);
     return pPacket;
 }
@@ -47,6 +49,12 @@ void PacketQueue::clear() {
         RTMPPacket_Free(avPacket);
         free(avPacket);
     }
+    pthread_mutex_unlock(&packetMutex);
+}
+
+void PacketQueue::notify() {
+    pthread_mutex_lock(&packetMutex);
+    pthread_cond_signal(&packetCond);
     pthread_mutex_unlock(&packetMutex);
 }
 

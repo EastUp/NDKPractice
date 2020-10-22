@@ -20,8 +20,9 @@ import kotlinx.android.synthetic.main.activity_test.camera_view
  * |---------------------------------------------------------------------------------------------------------------|
  */
 class LivePushActivity : AppCompatActivity() {
-//    private lateinit var mLivePush :LivePush
-    private lateinit var mVideoPush: DefaultVideoPush
+    //    private lateinit var mLivePush :LivePush
+//    private lateinit var mVideoPush: DefaultVideoPush
+    private var mVideoPush: GrayVideoPush? = null
     private var permissions = arrayOf(
         Manifest.permission.WRITE_EXTERNAL_STORAGE,
         Manifest.permission.READ_EXTERNAL_STORAGE,
@@ -31,7 +32,7 @@ class LivePushActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        if(PermissionCheckUtils.checkeHasPermission(this, permissions)) {
+        if (PermissionCheckUtils.checkeHasPermission(this, permissions)) {
             setContentView(R.layout.activity_livepush)
 
             live_bt.setOnClickListener { // 开始推送
@@ -48,7 +49,7 @@ class LivePushActivity : AppCompatActivity() {
                 }
             })
 
-        }else{
+        } else {
             PermissionCheckUtils.checkPermission(this, permissions, object : PermissionListener {
                 override fun onGranted() {
                     recreate()
@@ -65,18 +66,18 @@ class LivePushActivity : AppCompatActivity() {
     private fun startLivePush() {
         Log.e("TAG", "开始推流")
 
-        mVideoPush = DefaultVideoPush(
+        mVideoPush = GrayVideoPush(
             this@LivePushActivity,
             camera_view.eglContext, camera_view.textureId
         )
-        mVideoPush.initVideo(
+        mVideoPush!!.initVideo(
             "rtmp://192.168.1.20/myapp/mystream",
-            /*Utils.getScreenWidth(this@LivePushActivity)*/ 720 /2,
+            /*Utils.getScreenWidth(this@LivePushActivity)*/ 720 / 2,
             /*Utils.getScreenHeight(this@LivePushActivity)*/ 1280 / 2
         )
 
 
-        mVideoPush.setConnectListener(object :ConnectListener{
+        mVideoPush!!.setConnectListener(object : ConnectListener {
             override fun onConnectError(code: Int, msg: String) {
                 Log.e("TAG", "errorCode:$code")
                 Log.e("TAG", "errorMsg:$msg")
@@ -87,12 +88,13 @@ class LivePushActivity : AppCompatActivity() {
             }
         })
 
-        mVideoPush.startPush()
+        mVideoPush!!.startPush()
     }
 
 
     override fun onDestroy() {
+        if (mVideoPush != null)
+            mVideoPush!!.stopPush()
         super.onDestroy()
-        mVideoPush.stopPush()
     }
 }

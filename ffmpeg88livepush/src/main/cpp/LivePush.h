@@ -21,6 +21,7 @@ public:
     RTMP *pRtmp = nullptr;
     bool isPushing = true;
     uint32_t startTime;
+    pthread_t initConnecTid;
 public:
     LivePush(JNICall *pJniCall,const char *liveUrl);
 
@@ -34,6 +35,8 @@ public:
     void pushVideoData(jbyte *videoData, jint dataLen, jboolean keyFrame);
 
     void pushAudioData(jbyte *audioData, jint dataLen);
+
+    void stop();
 };
 
 
