@@ -14,11 +14,11 @@
 
 void hannuota(int n,char start,char help,char end){
     if(n == 1){
-        LOGE("把 %d 个盘子从 %c 挪动到 %c",n,start,end);
+        LOGE("把第 %d 个盘子从 %c 挪动到 %c",n,start,end);
     }else{
         // 又是 n-1 汉诺塔
         hannuota(n-1,start,end,help);
-        LOGE("把 %d 个盘子从 %c 挪动到 %c",n,start,end);
+        LOGE("把第 %d 个盘子从 %c 挪动到 %c",n,start,end);
         hannuota(n-1,help,start,end);
     }
 }
@@ -27,7 +27,7 @@ extern "C"
 JNIEXPORT jstring JNICALL Java_com_east_datastructure32queue_MainActivity_stringFromJNI
 (JNIEnv* env,jobject jobj){
 
-    // hannuota(3,'A','B','C');
+     hannuota(3,'A','B','C');
 
     ArrayQueue<int> queue(9);
 
